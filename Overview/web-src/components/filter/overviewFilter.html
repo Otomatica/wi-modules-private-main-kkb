@@ -1,0 +1,19 @@
+<md-toolbar class="md-hue-2">
+    <div class="md-toolbar-tools"></div> 
+</md-toolbar>
+<md-card-content flex>
+    <div layout class="wi-tag-hierarchy-container">
+        <wi-tag-hierarchy flex="none"
+            ng-multiple="true"
+            callback="$ctrl.navigate($item)"
+            setting="$ctrl.tags"
+            select-all="$ctrl.currentSetting.selectAll"
+            max-depth="$ctrl.currentSetting.maxDepth"
+            root-restriction="$ctrl.currentSetting.rootRestriction"
+            tags="$ctrl.currentSetting.tags" 
+            ng-model="$ctrl.currentSetting.defaultTagValues"
+            ng-change="$ctrl.wathcListCallback()">
+        </wi-tag-hierarchy>
+    </div>
+</md-card-content>
+    

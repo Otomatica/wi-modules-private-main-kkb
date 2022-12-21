@@ -1,0 +1,9 @@
+<ma-tile-map
+	automatic-tile-layers="false"
+	ng-if="$ctrl.context.src" 
+	style="background-color: transparent; border-width: 1px; border-style: dashed; height: calc(100vh - 328px)"
+	md-colors="{borderColor: 'accent'}">
+	<wi-tile-map-image show-dimension="true" src="{{$ctrl.context.src}}"></wi-tile-map-image>
+	<wi-tile-map-draw context="$ctrl.context" default-color="$ctrl.defaultColor"></wi-tile-map-draw>
+	<wi-tile-map-heat-map ng-repeat="heatMap in $ctrl.context.heatMap" edit-mode="true" config="heatMap"></wi-tile-map-heat-map>
+</ma-tile-map>

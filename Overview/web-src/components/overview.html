@@ -1,0 +1,161 @@
+
+<ma-json-store xid="overview-settings" item="storeItem" value="setting"></ma-json-store>
+
+<div ng-init="query.filter=''" layout="column" layout-gt-md="row" layout-gt-lg="row" flex="noshrink" ng-if="storeItem && (setting | wiNumKey) > 0">
+    
+    <md-card flex="noshrink" flex-gt-md="25" flex-gt-lg="20" layout="column" id="default-filter-container">
+        <wi-overview-filter
+            devices="$ctrl.devices"
+            current-setting="currentSetting"
+            tags="setting.tags"
+            navigate-callback="$item && $item.depth && $root.navigate($item.tagKey, $item.tagValue)"
+            wathc-list-callback="$ctrl.createWathcList()">
+        </wi-overview-filter>
+    </md-card>
+    <md-card flex layout="column" wi-full-screen="$root.fullScreen" ng-style="$root.fullScreen && {'overflow':'hidden auto'}">
+        
+        <wi-toolbar sidenav-id="overviewFilter" ng-if="$root.fullScreen"></wi-toolbar>
+        <md-sidenav class="md-sidenav-right" md-component-id="overviewFilter" id="sidenav-filter-container"> 
+
+        </md-sidenav>
+        
+        <md-card-content layout layout-align="start center" ng-if="$ctrl.$state.params.key" ng-style="$root.fullScreen && { 'padding-top': 58 + 'px' }">
+            <span ng-repeat="tag in setting.tags">
+                <span layout layout-align="center" ng-if="$ctrl.$state.params.key != tag.key && $index < setting.tags.indexOf(currentSetting)">
+                    <a class="wi-no-underline" ng-bind="$ctrl.firstPoint.tags[tag.key]" 
+                        ng-click="$root.navigate(tag.key, $ctrl.firstPoint.tags[tag.key])"></a>
+                    <md-icon>chevron_right</md-icon>
+                </span>
+                <span ng-if="$ctrl.$state.params.key == tag.key" >
+                    <a class="md-primary wi-no-underline" ng-bind="$ctrl.$state.params.value"></a>
+                </span>
+            </span>
+            <span flex></span>
+            <wi-active-events disable-device-link="true" popup-title="$ctrl.$state.params.value" point-query="eq(tags.{{$ctrl.$state.params.key}},{{$ctrl.$state.params.value}})"></wi-active-events>
+        </md-card-content>
+        <md-tabs class="md-primary" md-dynamic-height md-selected="$ctrl.tabIndex">
+            <md-tab ng-show="$ctrl.firstPoint">
+                <md-tab-label><span ma-tr="overview.settings.graphic"></span></md-tab-label>
+                <md-tab-body>
+                    <md-nav-bar md-no-ink-bar="true" ng-if="currentSetting.graphs[$ctrl.$state.params.value].length" 
+                        class="md-primary md-hue-2" md-selected-nav-item="$ctrl.graphIndex" md-dynamic-height >
+                        <md-nav-item
+                            ng-class="$ctrl.graphIndex == $index && 'wi-nav-bar-selected'"
+                            ng-repeat="graphic in currentSetting.graphs[$ctrl.$state.params.value]" 
+                            ng-init="$ctrl.graphIndex = 0;" name="{{$index}}" md-nav-click="$ctrl.graphIndex = $index">
+                            {{graphic.title}}
+                        </md-nav-item>
+                    </md-nav-bar>
+                    <md-card-content ng-repeat="graphic in currentSetting.graphs[$ctrl.$state.params.value]" 
+                        ng-if="$ctrl.tabIndex == 0 && $ctrl.graphIndex == $index">
+                        <ma-ui-page-view flex ng-if="!graphic.type" layout="column" xid="{{graphic.xid}}"></ma-ui-page-view>
+                        <wi-graph-view flex ng-if="graphic.type == 'graphView'" layout="column" xid="{{graphic.xid}}"></wi-graph-view>
+                    </md-card-content>
+                    <md-card-content ng-if="!currentSetting.graphs[$ctrl.$state.params.value].length">
+                        <span ma-tr="ui.components.noItemsToList"></span>
+                    </md-card-content>
+                </md-tab-body>
+            </md-tab>
+            <md-tab>
+                <md-tab-label><span ma-tr="common.points"></span></md-tab-label>
+                <md-tab-body>
+                    <wi-point-list-table
+                        ng-if="$ctrl.tabIndex == 1"
+                        overview-setting="setting"
+                        query="$ctrl.watchList.query"
+                        columns="currentSetting.defaultColumns" 
+                        sort="currentSetting.defaultSort"> 
+                    </wi-point-list-table>
+                </md-tab-body>
+            </md-tab>
+            <md-tab>
+                <md-tab-label><span ma-tr="ui.app.events"></span></md-tab-label>
+                <md-tab-body>
+                    <div ng-if="$ctrl.tabIndex == 2" ng-init="acknowledged='any'; activeStatus='any'; alarmLevel='any'">
+                        <wi-event-table 
+                            alarm-level="alarmLevel"
+                            acknowledged="acknowledged"
+                            active-status="activeStatus"
+                            point-query="$ctrl.watchList.query">
+                        </wi-event-table>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+            <md-tab>
+                <md-tab-label><span ma-tr="ui.app.devices"></span></md-tab-label>
+                <md-tab-body>
+                    <div ng-if="$ctrl.tabIndex == 3" ng-init="$ctrl.getDevices()">
+                        <wi-device-details-view
+                            overview-setting="setting"
+                            devices="$ctrl.devices">
+                        </wi-device-details-view>
+                    </div>
+                </md-tab-body>
+            </md-tab>
+            <md-tab>
+                <md-tab-label><span ma-tr="common.alarmLevel.info"></span></md-tab-label>
+                <md-tab-body>
+                    <div ng-if="$ctrl.tabIndex == 4">
+                        <div ng-repeat="tagGroup in currentSetting.tagGroups">
+                            <md-toolbar class="md-hue-2">
+                                <div class="md-toolbar-tools">
+                                    <span ng-bind="tagGroup.title"></span>
+                                </div>
+                            </md-toolbar>
+                            <md-card-content>
+                                <span layout ng-repeat="tag in tagGroup.tags">
+                                    <span flex-gt-md="15" flex="30" ng-bind="tag"></span>
+                                    <span ng-if="(setting.tags | filter: {key:tag} | maFirst)">
+                                        <a class="wi-no-underline"
+                                            ng-class="{'md-primary': tag == $root.$state.params.key}"
+                                            ng-click="$root.navigate(tag, $ctrl.firstPoint.tags[tag])"
+                                            ng-bind="$ctrl.firstPoint.tags[tag]"></a>
+                                    </span>
+                                    <span ng-if="!(setting.tags | filter: {key:tag} | maFirst)" ng-bind="$ctrl.firstPoint.tags[tag]"></span>
+                                </span>
+                            </md-card-content>
+                        </div>
+                    </div>
+                    <md-card-content ng-if="!currentSetting.tagGroups.length">
+                        <span ma-tr="ui.components.noItemsToList"></span>
+                    </md-card-content>
+                </md-tab-body>
+            </md-tab>
+            <md-tab>
+                <md-tab-label><span ma-tr="overview.settings.files"></span></md-tab-label>
+                <md-tab-body>
+                    <div ng-if="$ctrl.tabIndex == 5" ng-init="$ctrl.getFiles()">
+                        <div ng-repeat="fileSetting in currentSetting.files">
+                            <md-toolbar class="md-hue-2">
+                                <div class="md-toolbar-tools">
+                                    <span ng-bind="fileSetting.title"></span>
+                                </div>
+                            </md-toolbar>
+                            <md-card-content>
+                                <div layout layout-align="start center" ng-repeat="file in fileSetting.files">
+                                    <md-button class="md-button md-icon-button md-primary" href="{{file.url}}">
+                                        <md-icon>file_download</md-icon>
+                                    </md-button>
+                                    <a class="wi-no-underline" href="{{file.url}}" ng-bind="file.filename">
+                                        <md-tooltip md-direction="right" ma-tr="common.download"></md-tooltip>
+                                    </a>
+                                </div>
+                            </md-card-content>
+                        </div>
+                    </div>
+                    <md-card-content ng-if="!currentSetting.files.length">
+                        <span ma-tr="ui.components.noItemsToList"></span>
+                    </md-card-content>
+                </md-tab-body>
+            </md-tab>
+        </md-tabs>
+
+        <wi-device-dialog></wi-device-dialog>
+
+    </md-card>
+</div>
+
+<md-card-content ng-if="storeItem && (setting | wiNumKey) == 0">
+    <span ma-tr="ui.app.configure"></span>
+    <a href="/ui/administration/overview" ma-tr="overview.settings"></a>
+</md-card-content>

@@ -1,0 +1,9 @@
+<div ng-if="$ctrl.points.length > $ctrl.chartPoints.length" layout="column" layout-align="start center" layout-wrap class="md-padding">
+    <span ng-repeat="point in $ctrl.points" ng-if="point.dataType != 'NUMERIC' && !$ctrl.rollup.nonNumeric"> 
+    	<a class="md-accent wi-no-underline" ma-tr="{{$ctrl.rollup.translation}}"></a> 
+    	<span ma-tr="wiseifUI.notSupportedFor"></span>
+		<a class="md-primary wi-no-underline" ng-bind="point.deviceName + ' - ' + point.name"></a>
+    </span>
+</div>
+
+<ma-calc input="$root.rollupTypes | filter:{type: dateBar.rollupType} | maFirst:true" output="$ctrl.rollup">

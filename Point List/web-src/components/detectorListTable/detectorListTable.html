@@ -1,0 +1,200 @@
+<style>
+    /*hide select all option && its seperator*/
+    .ma-data-point-selector > md-menu-divider:nth-child(2),
+    .ma-data-point-selector > md-menu-item:nth-child(3),
+    .ma-data-point-selector > md-menu-item:nth-child(4) {
+        display: none;
+    }
+</style>
+
+<wi-detector-query
+    refresh="page.refreshQuery"
+    alarm-level="page.alarmLevel"
+    point-ids="$ctrl.pointIds"
+    detector-types="page.detectorTypes"
+    limit="query.limit" 
+    start="(query.page-1)*query.limit" 
+    sort="query.order"
+    promise="page.promise"
+    detectors="page.detectors">
+</wi-detector-query>
+
+ <md-toolbar class="md-hue-2">
+    <div class="md-toolbar-tools" layout layout-align="space-between center">
+        <h2 class="md-title" ma-tr="ui.app.eventDetectors"></h2>
+        <div layout layout-align="end center" flex>
+            <md-button ng-if="$ctrl.higlightUpdate" class="md-icon-button md-accent"
+                ng-click="page.refreshQuery = !page.refreshQuery; $ctrl.higlightUpdate = false;">
+                <md-tooltip><span ma-tr="ui.app.refreshTable"></span></md-tooltip>
+                <md-icon>refresh</md-icon>
+            </md-button>
+            <md-switch ng-if="page.detectors.length" class="wi-switch-label" ng-model="page.hideValues" ma-tr="ui.app.point"></md-switch>
+            <ma-data-point-tag-key-select flex="25" ng-if="page.hideValues && page.detectors.length"
+                ng-model="page.tagCols"
+                no-float="page.tagCols.length >= 1" 
+                exclude-tags="['name','device']" 
+                select-multiple="true">
+            </ma-data-point-tag-key-select>
+        </div>
+    </div>
+</md-toolbar>
+
+<md-card-actions layout="row" layout-align="space-between center" layout-wrap>
+    <md-button style="margin-right: 0;" class="md-accent md-icon-button" ng-disabled="page.points.length != 1" ng-click="$ctrl.newDetector(page.points[0])">
+        <md-icon>add</md-icon>
+        <md-tooltip ma-tr="ui.eventDetectors.create"></md-tooltip>
+    </md-button>
+    <md-input-container flex>
+        <label ng-if="!page.points.length" ma-tr="ui.app.dataPoints"></label>
+        <ma-drop-down-button>
+            <span ng-if="page.points.length">
+                <span ng-if="page.points.length == 1" ng-bind="page.points[0].formatLabel()"></span>
+                <span ng-if="page.points.length != 1" ma-tr="ui.app.xPointsSelectedLong" ma-tr-args="[page.points.length]"></span>
+            </span>
+            <ma-drop-down create-on-init="false" class="ma-slide-down">
+                <ma-data-point-selector select-multiple="true" ng-model="page.points" ng-model-options="{debounce: 1000}" ng-change="$ctrl.pointsChanged()" show-clear="true">
+                </ma-data-point-selector>
+            </ma-drop-down>
+        </ma-drop-down-button>
+    </md-input-container>
+
+    <md-input-container flex>
+        <label ma-tr="ui.eventDetectors.type"></label>
+        <md-select name="detectorType" ng-model="page.detectorTypes" multiple="">
+            <md-option ng-repeat="item in $ctrl.detectorTypes" ng-value="item.type">
+                <span ma-tr="{{item.description}}"></span>
+                <span ng-if="item.description == 'pointEdit.detectors.state'">
+                    (
+                        <span ng-if="item.type == 'ALPHANUMERIC_STATE'" ma-tr="common.dataTypes.alphanumeric"></span>
+                        <span ng-if="item.type == 'BINARY_STATE'" ma-tr="common.dataTypes.binary"></span>
+                        <span ng-if="item.type == 'MULTISTATE_STATE'" ma-tr="common.dataTypes.multistate"></span>
+                    )
+                </span>
+            </md-option>
+        </md-select>
+    </md-input-container>
+
+    <md-input-container flex>
+        <label ma-tr="common.alarmLevel"></label>
+        <md-select ng-init="page.alarmLevel='any'" ng-model="page.alarmLevel">
+           <md-option value="any">
+                <md-icon class="ma-alarm-flag ma-alarm-level-all">flag</md-icon>
+                <span ma-tr="ui.app.any"></span>
+            </md-option>
+            <md-option ng-value="level.key" ng-repeat="level in $ctrl.maEvents.levels track by level.key">
+                <md-icon class="ma-alarm-flag" ng-class="level.materialClasses">{{level.materialIcon}}</md-icon>
+                <span ma-tr="{{level.translation}}"></span>
+            </md-option>
+        </md-select>
+    </md-input-container>
+</md-card-actions>
+
+<md-table-container>
+    <table md-table ng-model="$ctrl.selected" md-progress="page.promise"><!--md-row-select multiple=""-->
+        <thead md-head md-order="query.order">
+        <tr md-row>
+            <th md-column md-order-by="xid" ma-tr="ui.app.xid"></th>
+            <th md-column ma-tr="ui.app.description"></th>
+            <th md-column md-order-by="typeName" ma-tr="ui.eventDetectors.type"></th>
+            <th md-column ma-tr="common.rtn"></th>
+            <th md-column ma-tr="common.alarmLevel"></th>
+            <th md-column md-numeric ma-tr="ui.app.eventHandlers"></th>
+            <!--<th md-column md-order-by="sourceTypeName" ma-tr="events.search.type"></th>-->
+            <th md-column md-order-by="sourceId" ma-tr="ui.settings.systemStatus.pointId"></th>
+            <th md-column ng-if="page.hideValues" ma-tr="common.deviceName">
+            <th md-column ng-if="page.hideValues" ma-tr="common.name">
+            <th md-column ng-if="page.hideValues" ng-repeat="tag in page.tagCols">
+                <span ng-bind="tag"></span>
+            </th>
+            <th md-column md-numeric ng-if="page.hideValues" ma-tr="ui.app.pointValue">
+            <th md-column ma-tr="common.edit"></th>
+            <th md-column ma-tr="ui.app.new"></th>
+        </tr>
+        </thead>
+        <tbody md-body>
+        <tr md-row md-select="detector" md-select-id="id" md-auto-select="false" ng-repeat="detector in page.detectors">
+            <td md-cell ng-bind="detector.xid"></td>
+            <td md-cell ng-bind="detector.description"></td>
+            <td md-cell>
+                <span ma-tr="{{$ctrl.description(detector.detectorType)}}"></span> 
+                <span ng-if="$ctrl.description(detector.detectorType) == 'pointEdit.detectors.state'">
+                    (
+                        <span ng-if="detector.detectorType == 'ALPHANUMERIC_STATE'" ma-tr="common.dataTypes.alphanumeric"></span>
+                        <span ng-if="detector.detectorType == 'BINARY_STATE'" ma-tr="common.dataTypes.binary"></span>
+                        <span ng-if="detector.detectorType == 'MULTISTATE_STATE'" ma-tr="common.dataTypes.multistate"></span>
+                    )
+                </span>
+            </td>
+            <td md-cell ng-if="!detector.rtnApplicable">
+                <span ma-tr="common.nortn"></span> (<span ma-tr="ui.app.instantaneous"></span>)
+            </td>
+            <td md-cell ng-if="detector.rtnApplicable">
+                <span ng-if="detector.rtnApplicable" ma-tr="common.rtn"></span>
+            </td>
+            <td md-cell>
+                <md-icon class="ma-alarm-flag" ng-class="$ctrl.level(detector.alarmLevel).materialClasses">
+                    {{$ctrl.level(detector.alarmLevel).materialIcon}}
+                </md-icon>
+                <span ma-tr="{{$ctrl.level(detector.alarmLevel).translation}}"></span>
+            </td>
+            <td md-cell ng-bind="detector.handlerXids.length"></td>
+            <!--<td md-cell ng-bind="detector.sourceTypeName"></td>-->
+            <td md-cell ng-bind="detector.sourceId"></td>
+            <td md-cell ng-if="page.hideValues" ng-bind="detector.dataPoint.deviceName"></td>
+            <td md-cell ng-if="page.hideValues" ng-bind="detector.dataPoint.name"></td>
+            <td md-cell ng-if="page.hideValues" ng-repeat="tag in page.tagCols" ng-bind="detector.dataPoint.tags[tag]"></td>
+            <td md-cell ng-if="page.hideValues">
+                <ma-point-value style="cursor: pointer;"
+                    point="detector.dataPoint" 
+                    enable-popup="left" 
+                    flash-on-change="true">
+                </ma-point-value>
+            </td>
+            <td md-cell>
+                <md-icon ng-class="{'md-accent': $ctrl.shoDialog && $ctrl.selected.id == detector.id}" class="wi-no-focus" 
+                    ng-click="$ctrl.selected = detector; $ctrl.shoDialog = true;">edit</md-icon>
+            </td>
+            <td md-cell>
+                <md-icon ng-class="{'md-accent': $ctrl.shoDialog && $ctrl.selected.sourceId == detector.sourceId && !$ctrl.selected.id}" class="wi-no-focus" 
+                    ng-click="$ctrl.newDetector(detector.dataPoint);">add</md-icon>
+                
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</md-table-container>
+
+<md-table-pagination md-page-select
+    md-limit="query.limit" 
+    md-limit-options="[5, 10, 20]" 
+    md-page="query.page" 
+    md-total="{{page.detectors.$total}}">
+</md-table-pagination>
+
+<ma-dialog
+    show-dialog="$ctrl.shoDialog" 
+    on-hide="$ctrl.shoDialog = false" 
+    on-cancel="$ctrl.shoDialog = false">
+    <md-dialog flex="100" flex-gt-sm="80" flex-gt-md="65" flex-gt-lg="50" flex-gt-xl="30">
+
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>
+                    <span ma-tr="ui.eventDetectors.for" ma-tr-args="[$ctrl.selected.dataPoint.formatLabel()]"></span>
+                </h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ui-sref="ui.help.eventDetectors">
+                    <md-icon>help</md-icon>
+                </md-button>
+                <md-button class="md-icon-button" ng-click="$dialog.cancel()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content class="ma-data-point-details-event-detectors" flex layout="column">
+            <ma-event-detector-layout data-point="$ctrl.selected.dataPoint" ng-model="$ctrl.selected" ng-change="$ctrl.detectorChanged()">
+            </ma-event-detector-layout>
+        </md-dialog-content>
+    </md-dialog>
+</ma-dialog>

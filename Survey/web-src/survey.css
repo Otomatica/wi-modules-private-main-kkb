@@ -1,0 +1,11 @@
+.svd_commercial_container {
+	display: none;
+}
+
+.surveyContainer {
+	background-color: white;
+}
+
+.sv-progress__text {
+	position: static;
+}

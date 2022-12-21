@@ -1,0 +1,66 @@
+<wi-note-query
+    ng-init="$ctrl.refresh = false"
+    refresh="$ctrl.refresh"
+    comment="$ctrl.filter"
+    users="$ctrl.users"
+    points="$ctrl.points"
+    from="dateFilter && dateBar.from"
+    to="dateFilter && dateBar.to"
+    limit="query.limit" 
+    start="(query.page-1)*query.limit" 
+    sort="query.order"
+    promise="page.promise"
+    notes="page.notes">
+</wi-note-query>
+
+<md-card-content>
+    <div layout="row" layout-align="space-between center" layout-wrap>
+        <div flex="33" class="wi-icon-container" layout layout-align="center center">
+            <md-input-container flex>
+                <md-icon>search</md-icon>
+                <label ma-tr="ui.app.search"></label>
+                <input ng-model="$ctrl.filter" ng-model-options="{debounce: 500}"></md-input-container>
+            </md-input-container>
+            <md-button class="md-icon-button" ng-class="{'md-accent' : $ctrl.filter}" ng-click="$ctrl.filter=''">
+                <md-icon>clear</md-icon>
+                <md-tooltip><span ma-tr="ui.app.clear"></span></md-tooltip>
+            </md-button>
+        </div>
+        <ma-user-select flex="33" ng-model="$ctrl.users" select-multiple="true" hide-name="true"></ma-user-select>
+        <div flex layout layout-align="end center">
+            <md-switch class="wi-switch-label" ng-model="dateFilter" ma-tr="ui.app.dateFilter"></md-switch>
+            <md-button class="md-icon-button" ng-click="$ctrl.refresh=!$ctrl.refresh">
+                <md-tooltip><span ma-tr="ui.app.refreshTable"></span></md-tooltip>
+                <md-icon>refresh</md-icon>
+            </md-button>
+        </div>
+    </div>
+</md-card-content>
+
+<md-table-container>
+    <table md-table ng-model="$ctrl.selected" md-progress="page.promise"><!--md-row-select multiple=""-->
+        <thead md-head md-order="query.order">
+        <tr md-row>
+            <th md-column md-order-by="referenceId" ma-tr="ui.app.dataPoint"></th>
+            <th md-column md-order-by="userId" ma-tr="ui.app.user"></th>
+            <th md-column md-order-by="commentText" ma-tr="ui.app.note"></th>
+            <th md-column md-numeric md-order-by="timestamp" ma-tr="ui.app.time"></th>
+        </tr>
+        </thead>
+        <tbody md-body>
+        <tr md-row md-select="note" md-select-id="id" md-auto-select="false" ng-repeat="note in page.notes">
+            <td md-cell ng-bind="($ctrl.points | filter:{id:note.referenceId} | maFirst:true).formatLabel()"></td>
+            <td md-cell ng-bind="note.username"></td>
+            <td md-cell ng-bind="note.comment"></td>
+            <td md-cell ng-bind="note.timestamp | maDate:'shortDateTimeSeconds'"></td>
+        </tr>
+        </tbody>
+    </table>
+</md-table-container>
+
+<md-table-pagination md-page-select
+    md-limit="query.limit" 
+    md-limit-options="[5, 10, 20]" 
+    md-page="query.page" 
+    md-total="{{page.notes.$total}}">
+</md-table-pagination>

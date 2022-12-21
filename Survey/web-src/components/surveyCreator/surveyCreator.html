@@ -1,0 +1,26 @@
+<div class="surveyContainer">
+    <div id="creatorElement"></div>
+</div>
+
+<ma-dialog
+    show-dialog="$ctrl.showDialog" 
+    on-hide="$ctrl.showDialog = undefined;" 
+    on-cancel="$ctrl.showDialog = undefined;">
+    <md-dialog flex class="wi-device-view-dialog">
+        <md-toolbar class="md-primary md-hue-2">
+            <div class="md-toolbar-tools">
+                <span>
+                    <span ma-tr="survey.title"></span>
+                </span>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="$dialog.cancel()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content flex layout="column">
+            <wi-survey ng-if="$ctrl.showDialog" data="$ctrl.data"></wi-survey>
+        </md-dialog-content>
+    </md-dialog>
+</ma-dialog>

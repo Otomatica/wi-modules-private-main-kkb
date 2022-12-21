@@ -1,0 +1,229 @@
+<wi-point-query 
+    query="$ctrl.query"
+    filter="page.filter"
+    limit="query.limit" 
+    start="(query.page-1)*query.limit" 
+    sort="query.order"
+    promise="page.promise"
+    points="page.points">
+</wi-point-query>
+
+<md-toolbar class="md-hue-2">
+    <div class="md-toolbar-tools" layout layout-align="space-between center">
+        <h2 class="md-title" ma-tr="ui.app.dataPoints"></h2>
+        <span flex></span>
+        <md-input-container flex="25" class="md-accent">
+            <md-icon class="md-accent">search</md-icon>
+            <input ng-model="page.filter" ng-model-options="{debounce: 500}">
+        </md-input-container>
+        <md-button style="top:5px;"
+            class="md-icon-button md-warn"
+            ng-disabled="!page.filter" 
+            ng-click="page.filter = null">
+            <md-icon>clear</md-icon>
+            <md-tooltip md-autohide><span ma-tr="ui.app.clear"></span></md-tooltip>
+        </md-button>
+        <span flex></span>
+        <md-switch class="wi-switch-label md-accent" ng-model="page.showValues" ng-change="page.showValues && (page.showStats=false)" ma-tr="ui.app.pointValue"></md-switch>
+    </div>
+</md-toolbar>
+
+<md-card-content layout layout-align="space-between center" layout-wrap>
+    <div ng-if="$root.selectedPoints.length" layout layout-align="none center">
+        <span ma-tr="ui.app.xPointsSelectedLong" ma-tr-args="[$root.selectedPoints.length]"></span>
+        <md-icon class="md-warn wi-no-focus" ng-click="$root.selectedPoints=[]">clear</md-icon>
+    </div>
+    <span flex></span>
+    <span ng-if="(page.points | filter:{chartTooltip: true}).length">
+       <span 
+            ma-tr="{{ dateBar.preset && ($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translation || 'ui.app.dateRangePreset'}}" 
+            ma-tr-args="($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translationArgs"></span> 
+        (<span ma-tr="{{($root.rollupTypes | filter:{type: dateBar.rollupType} | maFirst:true).translation}}"></span>)
+    </span>
+    <span flex></span>
+    <md-switch class="wi-switch-label" ng-model="page.showStats" ma-tr="ui.app.chartAndCompare" 
+        ng-disabled="!$root.selectedPoints.length" ng-change="page.showStats && (page.showValues=false)"></md-switch>
+</md-card-content>
+<md-table-container>
+    <table md-table md-row-select multiple ng-model="$root.selectedPoints" md-progress="page.promise">
+        <thead md-head md-order="query.order">
+        <tr md-row>
+            <th ng-if="!$ctrl.columns || $ctrl.columns.includes('name')" md-column md-order-by="name" ma-tr="common.name"></th>
+            <th ng-if="!$ctrl.columns || $ctrl.columns.includes('device')" md-column md-order-by="deviceName" ma-tr="common.deviceName"></th>
+            <th ng-repeat="column in $ctrl.columns" ng-if="column != 'device' && column != 'name'" md-column md-order-by="tags.{{column}}" ng-bind="column"></th>
+            <th ng-if="page.showValues" class="ma-narrow-column" md-numeric md-column>
+                <a class="md-primary wi-no-underline" ma-tr="ui.app.value"></a>
+            </th>
+            <th ng-if="page.showValues" class="ma-narrow-column" md-numeric md-column>
+                <a class="md-primary wi-no-underline" ma-tr="ui.app.events"></a>
+            </th>
+            <th ng-if="page.showValues" class="ma-narrow-column" md-numeric md-column>
+                <a class="md-primary wi-no-underline" ma-tr="ui.app.time"></a>
+            </th>
+        </tr>
+        </thead>
+        <tbody md-body>
+        <tr md-row md-select="point" md-select-id="id" md-auto-select="false" ng-repeat="point in page.points">
+            <td ng-if="!$ctrl.columns || $ctrl.columns.includes('name')" md-cell style="white-space: nowrap;">
+                <span>
+                    <md-icon class="wi-no-focus" ng-click="$ctrl.addNote($event, point)" ng-class="{'md-primary' : point.noteTooltip}">
+                        speaker_notes
+                        <md-tooltip md-visible="point.noteTooltip" md-direction="right" ma-tr="notes.addNote"></md-tooltip>
+                    </md-icon>
+                    <a class="wi-no-underline" ng-click="$root.popupPoint($event, point, 'chart')" ng-bind="point.name"></a>    
+                </span>
+            </td>
+            <td ng-if="!$ctrl.columns || $ctrl.columns.includes('device')" md-cell style="white-space: nowrap;">
+                <span ng-bind="point.deviceName"></span>
+            </td>
+            <td ng-repeat="column in $ctrl.columns" ng-if="column != 'device' && column != 'name'" md-cell style="white-space: nowrap;">
+                <span ng-if="($ctrl.overviewSetting.tags | filter: {key:column}).length && column != $root.$state.params.key">
+                    <a class="wi-no-underline" 
+                        ng-click="$root.navigate(column, point.tags[column])"
+                        ng-bind="point.tags[column]"></a>
+                </span>
+                <span ng-if="!($ctrl.overviewSetting.tags | filter: {key:column}).length" ng-bind="point.tags[column]"></span>
+                <span ng-if="column == $root.$state.params.key">
+                    <a class="md-primary wi-no-underline" ng-bind="point.tags[column]"></a>
+                </span>
+            </td>
+            <td ng-if="page.showValues" md-cell class="ma-narrow-column">
+                <ma-point-value style="cursor: pointer;"
+                    hide-event-indicator="true"
+                    point="point"
+                    enable-popup="left"
+                    flash-on-change="true"></ma-point-value>
+            </td>
+
+            <td ng-if="page.showValues" md-cell class="ma-narrow-column">
+                <wi-active-events points="[point]" ng-click="$root.popupPoint($event, point, 'events')"></wi-active-events>
+            </td>
+
+            <td ng-if="page.showValues" md-cell class="ma-narrow-column">
+                <span layout layout-align="space-between center">
+                    <span flex></span>
+                    <ma-point-value md-colors="hovering && {color: 'primary'} || {}"
+                        ng-mouseenter="hovering = true"
+                        ng-mouseleave="hovering = false"
+                        class="wi-no-focus"
+                        ng-click="$root.popupPoint($event, point, 'table')"
+                        point="point"
+                        flash-on-change="true"
+                        display-type="dateTime"
+                        same-day-date-time-format="timeSeconds"
+                        hide-event-indicator="true">
+                    </ma-point-value>
+                    <md-icon 
+                        style="margin-left: 5px;"
+                        class="wi-no-focus" 
+                        ng-class="{'md-primary' : point.chartTooltip}" 
+                        ng-click="$root.popupPoint($event, point, 'chart')">
+                        trending_up
+                        <md-tooltip md-visible="point.chartTooltip" md-direction="left" style="height: auto; width: 450px;">
+                            <span ng-show="false" ng-bind="'|'"></span>
+                            <div ng-if="point.chartTooltip">
+                                <wi-tooltip-chart point="point"></wi-tooltip-chart>
+                            </div>
+                        </md-tooltip>
+                    </md-icon>
+                </span>
+            </td>
+
+        </tr>
+        </tbody>
+    </table>
+</md-table-container>
+
+<md-table-pagination md-page-select
+    md-limit="query.limit" 
+    md-limit-options="[5, 10, 20]" 
+    md-page="query.page" 
+    md-total="{{page.points.$total}}">
+</md-table-pagination>
+
+<md-tabs ng-if="page.showStats && $root.selectedPoints.length" md-dynamic-height class="md-primary" md-selected="$ctrl.tabIndex">
+    <md-tab>
+        <md-tab-label><span ma-tr="ui.app.stats"></span></md-tab-label>
+        <md-tab-body>
+            <wi-stats-table ng-if="$ctrl.tabIndex == 0" points="$root.selectedPoints"></wi-stats-table>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label><span ma-tr="pointList.stats.charts"></span></md-tab-label>
+        <md-tab-body>
+            <md-tabs ng-if="$ctrl.tabIndex == 1" md-dynamic-height class="md-primary md-hue-2" md-selected="$ctrl.chartIndex">
+                 <md-tab>
+                    <md-tab-label><span ma-tr="ui.components.serialChart"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-serial-chart ng-if="$ctrl.chartIndex == 0" points="$root.selectedPoints"></wi-serial-chart>
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="pointList.stats.stateChart"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-state-chart  ng-if="$ctrl.chartIndex == 1" points="$root.selectedPoints"></wi-state-chart>
+                    </md-tab-body>
+                </md-tab>
+                 <md-tab>
+                    <md-tab-label><span ma-tr="pointList.stats.dailyChart"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-daily-chart ng-if="$ctrl.chartIndex == 2"  points="$root.selectedPoints"></wi-daily-chart>
+                    </md-tab-body>
+                </md-tab>
+            </md-tabs>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label><span ma-tr="ui.app.events"></span></md-tab-label>
+        <md-tab-body>
+            <div ng-init="acknowledged='any'; activeStatus='any'; alarmLevel='any'"></div>
+            <md-tabs ng-if="$ctrl.tabIndex == 2" md-dynamic-height class="md-primary md-hue-2" md-selected="$ctrl.eventIndex">
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.eventsTable"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-event-table 
+                            disable-device-popup="true"
+                            ng-if="$ctrl.eventIndex == 0"
+                            alarm-level="alarmLevel"
+                            acknowledged="acknowledged"
+                            active-status="activeStatus"
+                            points="$root.selectedPoints">
+                        </wi-event-table>
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.timePeriods"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-event-time-line 
+                            ng-if="$ctrl.eventIndex == 1"
+                            overview-setting="$ctrl.overviewSetting"
+                            alarm-level="alarmLevel"
+                            acknowledged="acknowledged"
+                            active-status="activeStatus"
+                            points="$root.selectedPoints">
+                        </wi-event-time-line>
+                    </md-tab-body>
+                </md-tab>
+            </md-tabs>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label><span ma-tr="ui.app.history"></span></md-tab-label>
+        <md-tab-body>
+             <md-tabs ng-if="$ctrl.tabIndex == 3" md-dynamic-height class="md-primary md-hue-2" md-selected="$ctrl.historyIndex">
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.userComments"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-note-table ng-if="$ctrl.historyIndex == 0" points="$root.selectedPoints"></wi-note-table>
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.values"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-history-table ng-if="$ctrl.historyIndex == 1" points="$root.selectedPoints"></wi-history-table>
+                    </md-tab-body>
+                </md-tab>
+            </md-tabs>
+        </md-tab-body>
+    </md-tab>
+</md-tabs>

@@ -1,0 +1,140 @@
+<div class="md-padding" layout layout-align="space-between center" ng-init="$ctrl.configAxis = true; $ctrl.configPoint = true">
+    <md-switch ng-model="$ctrl.configAxis">
+        <span ma-tr="ui.components.showChart"></span> / <span ma-tr="ui.app.configureAxes"></span>
+    </md-switch>
+
+    <span>
+        <span 
+            ma-tr="{{ dateBar.preset && ($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translation || 'ui.app.dateRangePreset'}}" 
+            ma-tr-args="($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translationArgs"></span> 
+        (<span ma-tr="{{($root.rollupTypes | filter:{type: dateBar.rollupType} | maFirst:true).translation}}"></span>)
+    </span>
+
+    <md-switch class="md-primary wi-switch-label" ng-model="$ctrl.configPoint" ma-tr="ui.app.configureSeries"></md-switch>
+</div>
+
+<md-table-container ng-if="$ctrl.configAxis">
+    <table md-table>
+        <thead md-head>
+            <tr md-row>
+                <th md-column ma-tr="ui.app.pointAxis"></th>
+                <th md-column ma-tr="ui.app.axisTitle"></th>
+                <th md-column ma-tr="ui.app.axisColor"></th>
+                <th md-column ma-tr="ui.app.stackType"></th>
+                <th md-column md-numeric ma-tr="pointList.stats.autoScale"></th>
+                <th md-column ma-tr="ui.app.axisMinimum"></th>
+                <th md-column ma-tr="ui.app.axisMaximum"></th>
+                <th md-column ma-tr="ui.app.axisGridCount"></th>
+            </tr>
+        </thead>
+        <tbody md-body>
+            <tr md-row ng-repeat="axis in $ctrl.axisOptions track by axis.name">
+                <td md-cell ma-tr="{{axis.translation}}"></td>
+                <td md-cell 
+                    ng-click="$root.cellEdit($event, chartOptions.valueAxes[axis.name], 'title', 'ui.app.axisTitle', 'text', null, $ctrl.buildOptions, $ctrl)">
+                    <span ng-bind="chartOptions.valueAxes[axis.name].title"></span>
+                </td>
+                <td md-cell>
+                    <ma-color-picker ng-model="chartOptions.valueAxes[axis.name].color" ng-change="$ctrl.buildOptions()"></ma-color-picker>
+                    {{chartOptions.valueAxes[axis.name].color}}
+                </td>
+                <td md-cell>
+                    <md-select ng-init="chartOptions.valueAxes[axis.name].stackType = chartOptions.valueAxes[axis.name].stackType || 'none'" ng-model="chartOptions.valueAxes[axis.name].stackType" ng-change="$ctrl.buildOptions()">
+                        <md-option value="none" ma-tr="ui.app.none"></md-option>
+                        <md-option value="regular" ma-tr="ui.app.stacked"></md-option>
+                        <md-option value="100%">100% <span ma-tr="ui.app.stacked"></span></md-option>
+                    </md-select>
+                </td>
+                <td md-cell>
+                    <md-checkbox 
+                        ng-init="chartOptions.valueAxes[axis.name].autoScale = chartOptions.valueAxes[axis.name].autoScale == undefined || chartOptions.valueAxes[axis.name].autoScale" ng-change="$ctrl.buildOptions()" ng-model="chartOptions.valueAxes[axis.name].autoScale"></md-checkbox>
+                </td>
+                <td md-cell 
+                    ng-click="!chartOptions.valueAxes[axis.name].autoScale && $root.cellEdit($event, chartOptions.valueAxes[axis.name], 'minimum', 'ui.app.axisMinimum', 'number', null, $ctrl.buildOptions, $ctrl)">
+                    <span ng-bind="chartOptions.valueAxes[axis.name].minimum"></span>
+                </td>
+                <td md-cell 
+                    ng-click="!chartOptions.valueAxes[axis.name].autoScale && $root.cellEdit($event, chartOptions.valueAxes[axis.name], 'maximum', 'ui.app.axisMaximum', 'number', null, $ctrl.buildOptions, $ctrl)">
+                    <span ng-bind="chartOptions.valueAxes[axis.name].maximum"></span>
+                </td>
+                <td md-cell 
+                    ng-click="!chartOptions.valueAxes[axis.name].autoScale && $root.cellEdit($event, chartOptions.valueAxes[axis.name], 'gridCount', 'ui.app.axisGridCount', 'number', {'min': 0}, $ctrl.buildOptions, $ctrl)">
+                    <span ng-bind="chartOptions.valueAxes[axis.name].gridCount"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-table-container>
+
+<ma-point-values
+    ng-if="dateBar.rollupType == $ctrl.rollup.type && !$ctrl.configAxis"
+    rendered="true"
+    points="$ctrl.chartPoints" 
+    values="$ctrl.values"
+    from="dateBar.from" 
+    to="dateBar.to"
+    simplify-tolerance="dateBar.simplifyTolerance"
+    rollup="{{dateBar.rollupType}}" 
+    rollup-interval="{{dateBar.rollupIntervals + ' ' + dateBar.rollupIntervalPeriod}}">
+</ma-point-values>
+
+<div class="md-padding">
+    <wi-rollup-check ng-if="!$ctrl.configAxis" points="$ctrl.points" rollup="$ctrl.rollup" chart-points="$ctrl.chartPoints"></wi-rollup-check>
+    <ma-serial-chart flex 
+        ng-if="$ctrl.chartPoints.length && !$ctrl.configAxis"
+        style="height: 500px;"
+        options="$ctrl.chartConfig"
+        graph-options="$ctrl.points"
+        points="$ctrl.points"
+        values="$ctrl.values"
+        legend="true" 
+        export="true">
+    </ma-serial-chart>
+</div>
+
+<md-table-container ng-if="$ctrl.configPoint">
+    <table md-table>
+        <thead md-head md-order="tableOrder">
+            <tr md-row ma-fix-sort-icons>
+                <th md-column md-order-by="name" ma-tr="common.name"></th>
+                <th md-column md-order-by="deviceName" ma-tr="common.deviceName"></th>
+                <th md-column md-order-by="rollup" ma-tr="common.rollup.pointDefault"></th>
+                <th md-column md-order-by="chartColour" ma-tr="ui.app.lineColor"></th>
+                <th md-column md-order-by="plotType" ma-tr="ui.app.chartType"></th>
+                <th md-column md-order-by="valueAxis" ma-tr="ui.app.pointAxis"></th>
+            </tr>
+        </thead>
+        <tbody md-body ng-init="tableOrder='deviceName'">
+            <tr md-row ng-repeat="point in $ctrl.points | limitTo:query.limit:(query.page -1)*query.limit | orderBy: tableOrder track by point.xid">
+                <td md-cell>
+                    <span style="white-space: nowrap;">
+                        <md-icon class="wi-no-focus md-warn" ng-click="$ctrl.points.splice($index, 1)">clear</md-icon>
+                        <a class="wi-no-underline" ng-click="$root.popupPoint($event, point, 'chart')" ng-bind="point.name"></a>  
+                    </span>
+                </td>
+                <td md-cell ng-bind="point.deviceName"></td>
+                <td md-cell ma-tr="{{($ctrl.rollupTypes | filter:{type: point.rollup} | maFirst).translation}}"></td>
+                <td md-cell>
+                    <ma-color-picker ng-model="point.chartColour"></ma-color-picker>
+                    {{point.chartColour}}
+                </td>
+                <td md-cell>
+                    <md-select ng-model="point.plotType">
+                        <md-option value="LINE" ma-tr="ui.app.line"></md-option>
+                        <md-option value="SPLINE" ma-tr="ui.app.smooth"></md-option>
+                        <md-option value="STEP" ma-tr="ui.app.step"></md-option>
+                        <md-option value="BAR" ma-tr="ui.app.bar"></md-option>
+                    </md-select>
+                </td>
+                <td md-cell>
+                    <md-select ng-init="point.valueAxis = point.valueAxis || 'left'" ng-model="point.valueAxis">
+                        <md-option ng-repeat="axis in $ctrl.axisOptions track by axis.name" ng-value="axis.name">
+                            <span ma-tr="{{axis.translation}}"></span>
+                        </md-option>
+                    </md-select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-table-container>
+<md-table-pagination md-limit="query.limit" md-limit-options="[5, 10, 20]" md-page="query.page" md-total="{{$ctrl.points.length}}" md-page-select ng-if="$ctrl.configPoint"></md-table-pagination>

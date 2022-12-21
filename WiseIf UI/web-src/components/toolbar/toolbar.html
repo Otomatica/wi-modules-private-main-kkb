@@ -1,0 +1,70 @@
+<div class="wi-fulscreen-toolbar">
+	<md-toolbar class="ma-ui-main-toolbar md-accent" ng-class="{'md-whiteframe-glow-z1': !(stateParams.dateBarFulscreen && stateParams.expanded)}" role="toolbar">
+      	<div class="md-toolbar-tools ma-ui-toolbar-tools" tabIndex="-1">
+	        
+	        <h2 class="md-toolbar-item ma-ui-breadcrumb">
+	            <span ng-repeat="crumb in $root.crumbs track by $index" ng-class="{'hide-sm': !$last, 'hide-xs': !$last}">
+	                <span ma-tr="{{crumb.maTr}}" ng-bind="crumb.text"></span>
+	                <span ng-if="!$last">
+	                    <md-icon>chevron_right</md-icon>
+	                </span>
+	            </span>
+	        </h2>
+	          
+	        <div flex class="md-toolbar-item ma-ui-tools" layout layout-align="end center">
+
+	    		<div ng-if="stateParams.dateBarFulscreen">
+	          		<md-input-container md-no-float="true" class="date-preset">
+	                	<ma-date-range-picker 
+	                		from="dateBar.from" 
+	                		to="dateBar.to" 
+	                		no-underline="true"
+	             	 		preset="{{dateBar.preset}}" 
+	             	 		update-interval="{{dateBar.updateIntervalString}}"
+	                  		refresh="dateBar.refresh" 
+	                  		on-change="dateBar.preset = preset">	
+	              		</ma-date-range-picker>
+	              	</md-input-container>
+	              	<md-button 
+	              		class="md-icon-button md-hue-2" 
+		              	ng-click="dateBar.expanded = !dateBar.expanded"
+		                aria-label="{{'ui.app.moreDateSettings' | maTr}}"
+		                ng-class="{'md-primary': dateBar.expanded}">
+	              		<md-icon>date_range</md-icon>
+	                  	<md-tooltip md-autohide><span ma-tr="ui.app.expandDateBar"></span></md-tooltip>
+	              	</md-button>
+	            </div>
+
+		        <md-button ng-if="$ctrl.sidenavId" class="md-icon-button md-primary md-hue-2" ng-click="$ctrl.$mdSidenav($ctrl.sidenavId).toggle()" aria-label="Toggle Menu"> 
+		    		<md-icon>settings</md-icon>
+		            <md-tooltip md-autohide>
+	                	<span ma-tr="common.configuration"></span>
+	                </md-tooltip>
+		        </md-button>
+
+	            <md-button class="md-icon-button md-primary md-hue-2" ng-if="!$root.mangoWatchdog.apiUp">
+	                <md-icon>wifi_off</md-icon>
+	                <md-tooltip ma-tr="login.ui.app.apiDown"></md-tooltip>
+	            </md-button>
+	            
+	            <md-button class="md-icon-button" ng-click="$root.fullScreen = false">
+	            	<md-icon>fullscreen_exit</md-icon>
+	                <md-tooltip md-autohide>
+	                	<span ma-tr="wiseifUI.exitFullscreen"></span>
+	                </md-tooltip>
+	            </md-button>
+	            
+	            <md-button class="md-icon-button" ng-if="stateParams.helpPage" ui-state="stateParams.helpPage">
+	            	<md-icon>help</md-icon>
+	                <md-tooltip md-autohide>
+	                	<span ma-tr="ui.app.viewHelpPage"></span>
+	                </md-tooltip>
+	            </md-button>
+
+	      	</div>
+
+	  	</div>
+    </md-toolbar>
+
+    <wi-ui-date-bar on-refresh="dateBar.refresh = $event" ng-if="stateParams.dateBarFulscreen" ng-show="dateBar.expanded" class="ng-hide"></wi-ui-date-bar>
+</div>

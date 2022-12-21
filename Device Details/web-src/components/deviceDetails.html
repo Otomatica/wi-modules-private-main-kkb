@@ -1,0 +1,16 @@
+
+<div layout="column" layout-gt-md="row" layout-gt-lg="row" flex="noshrink">
+    <md-card flex="noshrink" flex-gt-md="25" flex-gt-lg="20" layout="column" id="default-filter-container">
+        <wi-device-details-filter
+            devices="$ctrl.devices" 
+            point-lists="$ctrl.pointLists"
+            selected-list="$ctrl.selectedList">
+        </wi-device-details-filter>
+    </md-card>
+    <md-card flex layout="column" wi-full-screen="$root.fullScreen" ng-style="$root.fullScreen && {'overflow':'hidden auto'}">
+    	<wi-toolbar sidenav-id="deviceFilter" ng-if="$root.fullScreen"></wi-toolbar>
+		<md-sidenav class="md-sidenav-right" md-component-id="deviceFilter" id="sidenav-filter-container"></md-sidenav>
+        <wi-device-details-view devices="$ctrl.devices" ng-style="$root.fullScreen && { 'padding-top': 42 + 'px' }"></wi-device-details-view>
+        <wi-device-dialog></wi-device-dialog>
+    </md-card>
+</div>

@@ -1,0 +1,36 @@
+wi-event-table .ma-active-status {
+	font-weight: bold;
+}
+
+wi-event-table a.ma-no-border {
+	border: none;
+}
+
+wi-event-table td:not(.ma-message-column),
+wi-event-table th:not(.ma-message-column) {
+	white-space: nowrap;
+}
+
+wi-event-table table.md-table td.md-cell.ma-message-column,
+wi-event-table table.md-table th.md-column.ma-message-column {
+	max-width: 380px;
+}
+
+wi-event-table table.md-table td.md-cell.ma-message-column a {
+    border: none;
+}
+
+@media (max-width: 959px) {
+	wi-event-table table.md-table td.md-cell.ma-message-column,
+	wi-event-table table.md-table th.md-column.ma-message-column {
+		max-width: 200px;
+	}
+}
+
+wi-event-table table.md-table td.md-cell.ma-message-column.ma-truncated {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-height: 20px;
+	line-height: 20px;
+}

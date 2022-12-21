@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "@infinite-automation/wiseifUI",
+  "version": "4.3.5",
+  "description": "Custom ui components",
+  "main": "web/wiseifUI.js",
+  "dependencies": {
+    "svg-pan-zoom": "^3.6.1"
+  },
+  "devDependencies": {
+    "@infinite-automation/mango-module-tools": "^2.1.0"
+  },
+  "scripts": {
+    "webpack": "webpack --config webpack.config.js",
+    "webpack-dev": "webpack --config webpack.config.js --mode development --watch"
+  },
+  "author": "Mert Cingöz",
+  "license": "UNLICENSED",
+  "com_infiniteautomation": {
+    "moduleName": "wiseifUI"
+  }
+}

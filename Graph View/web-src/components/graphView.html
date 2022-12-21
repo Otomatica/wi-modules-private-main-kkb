@@ -1,0 +1,54 @@
+<div layout layout-align="space-between center">
+	<div layout="column" layout-gt-sm="row" style="margin-top: -12px;">
+		<md-switch class="md-primary" style="margin: 0 5px 0 0" ng-init="$ctrl.showPoints = true;" ng-model="$ctrl.showPoints">
+			<span ma-tr="common.points"></span>
+		</md-switch>
+		<md-switch ng-disabled="!$ctrl.realtime" class="md-accent" style="margin: 0 5px 0 0" ng-init="$ctrl.showEvents = true;" ng-model="$ctrl.showEvents">
+			<span ma-tr="ui.app.events"></span>
+		</md-switch>
+		<md-switch ng-disabled="!$ctrl.realtime" flex class="md-warn" style="margin: 0" ng-init="$ctrl.showLinks = true;" ng-model="$ctrl.showLinks">
+			<span ma-tr="dashboardDesigner.a"></span>
+		</md-switch>
+	</div>
+	<span flex></span>
+	<div layout="column" layout-align="end end" layout-gt-sm="row" layout-align-gt-sm="space-between center" style="margin-top: -12px;">
+		<span style="margin-right: 6px;" ng-bind="$ctrl.time | maDate : 'LL LTS'"></span>
+		<md-switch style="margin: 0" class="md-accent wi-switch-label" ng-init="$ctrl.realtime = true;" ng-model="$ctrl.realtime" ma-tr="ui.app.realtime">
+		</md-switch>
+		<ma-now update-interval="100 milliseconds" on-change="$ctrl.realtime && ($ctrl.time = $value.valueOf())"></ma-now>
+	</div>
+</div>
+<div layout>
+	<ma-tile-map flex
+		automatic-tile-layers="false"
+		ng-if="$ctrl.context.src" 
+		style="background-color: transparent; border-width: 1px; border-style: dashed;"
+		ng-style="{
+			'height' : $ctrl.xid ? ($root.fullScreen ? 'calc(100vh - 244px)': 'calc(100vh - 314px)') :'calc(100vh - 204px)'
+		}"
+		md-colors="{borderColor: 'accent'}">
+		<wi-tile-map-image src="{{$ctrl.context.src}}"></wi-tile-map-image>
+		<wi-tile-map-shape 
+			ng-repeat="layer in $ctrl.context.layers | filter:{ data: { heatMapIndex: '!' } }" 
+			ng-if=" (layer.type == 'circlemarker' && $ctrl.realtime) ||
+					(layer.displayType == 'point' && $ctrl.showPoints) || 
+					(layer.displayType == 'events' && $ctrl.showEvents && $ctrl.realtime) ||
+					(layer.displayType == 'link' && $ctrl.showLinks && $ctrl.realtime) ||
+					(layer.displayType == 'href' && $ctrl.showLinks && $ctrl.realtime)"
+			config="layer"
+			time="$ctrl.time"
+			realtime="$ctrl.realtime">
+		</wi-tile-map-shape>
+		<wi-tile-map-heat-map ng-repeat="heatMap in $ctrl.context.heatMap"
+			index="$index"
+			time="$ctrl.time"
+			realtime="$ctrl.realtime"
+			layers="$ctrl.context.layers" 
+			config="heatMap">
+		</wi-tile-map-heat-map>
+	</ma-tile-map>
+	<div ng-if="!$ctrl.realtime" layout="column" layout-align="center center" md-colors="{'background': 'background'}">
+		<md-slider style="margin: 0" flex class="md-accent" ng-disabled="$ctrl.realtime" md-vertical="true" step="1000" min="{{dateBar.from.valueOf()}}" max="{{dateBar.to.valueOf()}}" ng-model="$ctrl.time">
+		</md-slider>
+	</div>
+</div>

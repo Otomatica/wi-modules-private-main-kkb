@@ -1,0 +1,37 @@
+.wi-device-view-dialog .md-toolbar-tools {
+	font-size: 1.7rem!important;
+}
+
+.wi-device-view-dialog {
+    width: 100%;
+    height: 100%;
+}
+
+.wi-device-view-dialog md-toolbar {
+    height: 42px!important;
+    min-height: 42px!important;
+    max-height: 42px!important;
+}
+
+md-dialog wi-device-details-view md-card-content {
+    padding: 16px!important;
+    display: block;
+}
+
+.ma-scroll-devices {
+    position: static;
+    overflow-y: auto;
+    height: calc(100vh - 520px);
+}
+
+.ma-scroll-template{
+    position: static;
+    overflow-y: auto;
+    height: calc(100vh - 492px);
+}
+
+.ma-scroll-add{
+    position: static;
+    overflow-y: auto;
+    height: calc(100vh - 434px);
+}

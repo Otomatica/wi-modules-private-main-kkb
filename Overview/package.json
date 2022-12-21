@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "name": "@infinite-automation/overview",
+  "version": "4.3.5",
+  "description": "General View for custom tag navigation",
+  "main": "web/overview.js",
+  "devDependencies": {
+    "@infinite-automation/mango-module-tools": "^2.1.0"
+  },
+  "scripts": {
+    "webpack": "webpack --config webpack.config.js",
+    "webpack-dev": "webpack --config webpack.config.js --mode development --watch"
+  },
+  "author": "Mert Cingöz",
+  "license": "UNLICENSED",
+  "com_infiniteautomation": {
+    "moduleName": "overview"
+  }
+}

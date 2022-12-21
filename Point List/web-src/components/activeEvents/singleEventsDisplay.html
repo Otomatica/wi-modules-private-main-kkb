@@ -1,0 +1,45 @@
+<div class="md-padding">
+    <span layout layout-align="center">
+        <md-icon ng-class="$ctrl.activeEvents.materialClasses">{{$ctrl.icon || $ctrl.activeEvents.materialIcon}}</md-icon>
+        <span ma-tr="{{$ctrl.activeEvents.translation}}"></span>
+        <span flex></span>
+        <ma-point-value
+            point="$ctrl.point" 
+            label="DEVICE_AND_NAME" 
+            hide-event-indicator="true" 
+            flash-on-change="true">
+        </ma-point-value>
+    </span>
+    </br>
+
+    <div ng-bind="$ctrl.activeEvents.event.message"></div>
+
+    <!--    
+        todo watch with socket
+        <div ng-if="$ctrl.activeEvents.event.comments.length">
+            <div ng-repeat="comment in $ctrl.activeEvents.event.comments">
+                 <md-icon>speaker_notes</md-icon>
+                 <span>
+                    <strong ng-bind="comment.comment"></strong>
+                    (<span ng-bind="comment.username"></span> - <span ng-bind="comment.timestamp | maDate:'shortDateTimeSeconds'"></span>)
+                 </span>
+            </div>
+        </div>
+    -->
+
+    </br>
+    <div ng-bind="$ctrl.activeEvents.event.activeTimestamp | maDate:'shortDateTimeSeconds'"></div>
+    <div>
+        <span ng-if="$ctrl.activeEvents.event.active" md-colors="::{color: 'accent'}" ma-tr="common.active"></span>
+        (<span ng-bind="$ctrl.activeEvents.event.duration | maDuration:'humanize'"></span>)
+    </div>
+    </br>
+
+    <span layout layout-align="center">
+        <md-icon ng-if="$ctrl.activeEvents.event.acknowledged" class="ma-acknowledged-checkbox ma-acknowledged">check_circle</md-icon>
+        <span ng-if="$ctrl.activeEvents.event.acknowledged" ma-tr="ui.app.acknowledgedByAt" 
+            ma-tr-args="[($ctrl.activeEvents.event.acknowledgedByUsername || ''), ($ctrl.activeEvents.event.acknowledgedTimestamp | maDate:'shortDateTimeSeconds')]"></span>
+        <span ng-if="!$ctrl.activeEvents.event.acknowledged" ma-tr="ui.app.unAcknowledged"></span>
+        <span flex></span>
+    </span>
+</div>

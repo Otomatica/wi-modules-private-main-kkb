@@ -1,0 +1,107 @@
+<div layout="column" layout-gt-md="row" layout-gt-lg="row" flex="noshrink">
+    <md-card flex="noshrink" flex-gt-md="25" flex-gt-lg="20" layout="column">
+        <md-toolbar class="md-hue-3">
+            <div class="md-toolbar-tools">
+                <span ma-tr="graphView.settings.select"></span>
+            </div>
+        </md-toolbar>
+
+        <md-card-content flex ng-if="!$ctrl.$mdMedia('gt-md')">
+            <section layout="row" layout-align="space-between center">
+            <div flex layout>
+				<md-input-container flex>
+				    <label ma-tr="graphView.settings.select"></label>
+				    <md-select flex ma-form-exclude ng-model="$ctrl.selectedSetting" ng-change="$ctrl.selectionChanged($ctrl.selectedSetting)">
+				        <md-option ng-repeat="setting in $ctrl.settings" ng-value="setting"><span ng-bind="setting.name"></span></md-option>
+				    </md-select>
+				</md-input-container>
+            </div>
+
+                <md-button class="md-raised md-primary" ng-click="$ctrl.newSetting()">
+                    <md-icon>add</md-icon> <span ma-tr="graphView.settings.new"></span>
+                </md-button>
+            </section>
+        </md-card-content>
+
+        <md-card-content flex layout layout-align="start start" ng-if="$ctrl.$mdMedia('gt-md')" class="ma-no-padding ma-scroll-parent">
+	        <div style="height:fit-content" flex layout="column" class="ma-scroll-child" >
+	       	  	<md-list flex style="padding:0">
+				    <md-list-item class="md-2-line" ng-click="$ctrl.newSetting()" md-colors="{'background': !$ctrl.selectedSetting.id ? 'accent-hue-1' : 'background-hue-1'}">
+				        <div class="md-list-item-text">
+				            <h3 ma-tr="graphView.settings.addMe"></h3>
+				            <p ma-tr="graphView.settings.createMe"></p>
+				        </div>
+				        <md-button class="md-secondary md-icon-button" ng-click="$ctrl.newSetting()">
+				            <md-icon>add</md-icon>
+				        </md-button>
+				    </md-list-item>
+				
+				    <md-list-item ng-repeat="setting in $ctrl.settings" class="md-2-line" ng-click="$ctrl.selectionChanged(setting)" md-colors="{'background': $ctrl.selectedSetting.id == setting.id ? 'accent-hue-1' : 'background-hue-1'}">
+				        <div class="md-list-item-text">
+				            <h3> {{setting.name}} </h3>
+				        </div>
+				    </md-list-item>
+				</md-list>
+	        </div>
+        </md-card-content>
+    </md-card>
+
+    <div flex>
+        <md-card>
+            <md-toolbar class="md-hue-3">
+                <div class="md-toolbar-tools" layout-align="space-between center">
+                    <span ng-if="$ctrl.selectedSetting.id" ma-tr="graphView.settings.edit" ma-tr-args="$ctrl.selectedText"></span>
+                    <span ng-if="!$ctrl.selectedSetting.id" ma-tr="graphView.settings.createMe"></span>
+                    <span flex></span>
+               		<ma-color-picker ng-hide="$ctrl.preview || !$ctrl.selectedSetting.context.src" ng-model="$ctrl.defaultColor" ng-init="$ctrl.defaultColor = '#8BC34A'">
+               		</ma-color-picker>
+                    <md-switch class="wi-switch-label" ng-model="$ctrl.preview" ma-tr="ui.app.preview" ng-if="$ctrl.selectedSetting.context.src"></md-switch>
+                </div>
+            </md-toolbar>
+            <div ng-if="!$ctrl.preview" class="md-padding" layout layout-align="space-between center" layout-wrap ng-form="$ctrl.form" ma-validation-messages="$ctrl.validationMessages">
+				<md-input-container flex="100" flex-gt-md="45" class="ma-input-space-between">
+			        <label ma-tr="common.name"></label>
+			        <input name="name" ng-model="$ctrl.selectedSetting.name" required>
+			        <div ng-messages="$ctrl.form.name.$error">
+			            <div ng-message="required" ma-tr="validate.required"></div>
+			            <div ng-message="validationMessage" ng-bind="$ctrl.form.name.validationMessage"></div>
+			        </div>
+			    </md-input-container>
+
+            	<md-input-container flex="100" flex-gt-md="45" class="ma-input-space-between">
+			        <label ma-tr="common.xid"></label>
+			        <input name="xid" ng-model="$ctrl.selectedSetting.xid" required>
+			        <div ng-messages="$ctrl.form.xid.$error">
+			            <div ng-message="required" ma-tr="validate.required"></div>
+			            <div ng-message="validationMessage" ng-bind="$ctrl.form.xid.validationMessage"></div>
+			        </div>
+			    </md-input-container>
+
+                <md-input-container flex="100" flex-gt-md="45">
+                    <label ma-tr="dashboardDesigner.img"></label>
+                    <input name="logoSrc" ng-model="$ctrl.selectedSetting.context.src" ma-empty-input ng-model-options="{debounce: 500}" required>
+                    <md-button class="ma-input-button md-icon-button"
+                    		ma-choose-file="$ctrl.selectedSetting.context.src = $url;"
+                    		ma-choose-file-selected="$ctrl.selectedSetting.context.src"
+                    		ma-choose-file-options="{mimeTypes: 'image/*', extensions: 'png,jpg,jpeg,svg', preview:true, store:'public'}">
+    				  	<md-icon>attachment</md-icon>
+    				  	<md-tooltip ma-tr="common.chooseFile"></md-tooltip>
+    				</md-button>
+                </md-input-container>
+	            
+               	<div flex="100" flex-gt-md="45" layout layout-align="end center" >
+			        <md-button class="md-raised md-primary" ng-click="$ctrl.save()" ng-disabled="!$ctrl.form.$valid">
+			            <md-icon>save</md-icon> <span ma-tr="common.save"></span>
+			        </md-button>
+			        <md-button class="md-raised md-warn" ng-click="$ctrl.delete()" ng-disabled="!$ctrl.selectedSetting.id">
+			            <md-icon>delete</md-icon> <span ma-tr="common.delete"></span>
+			        </md-button>
+			    </div>
+                <wi-graph-view-editor flex="100" context="$ctrl.selectedSetting.context" default-color="$ctrl.defaultColor"></wi-graph-view-editor>
+            </div>
+            <wi-graph-view ng-if="$ctrl.preview" flex="100" context="$ctrl.selectedSetting.context" class="md-padding"></wi-graph-view>
+        </md-card>
+    </div>
+</div>
+
+<wi-device-dialog></wi-device-dialog>

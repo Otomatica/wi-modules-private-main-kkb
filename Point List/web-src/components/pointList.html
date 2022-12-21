@@ -1,0 +1,57 @@
+<div layout="column" layout-gt-md="row" layout-gt-lg="row" flex="noshrink">
+    <md-card flex="noshrink" flex="20" flex-gt-md="25" flex-gt-lg="20" layout="column">
+        <md-toolbar class="md-hue-2">
+            <div class="md-toolbar-tools">
+    			<md-input-container md-no-float="true" flex>
+				    <md-select flex ma-form-exclude ng-model="$ctrl.selectedList" ng-change="$ctrl.createWatchList()" ma-tr="pointList.settings.select">
+				        <md-option ng-repeat="pointList in $ctrl.pointLists" ng-value="pointList" ng-selected="$index==0"><span ng-bind="pointList.name"></span></md-option>
+				    </md-select>
+				</md-input-container>
+            </div>
+        </md-toolbar>
+
+        <md-card-content flex >
+            <div layout class="wi-tag-hierarchy-container">
+    			<ma-tag-hierarchy flex="none"
+                    tags="$ctrl.selectedList.context.tags" 
+                    ng-multiple="true"
+                    ng-model="$ctrl.selectedList.context.defaultTagValues"
+                    ng-change="$ctrl.createWatchList()">
+                </ma-tag-hierarchy>
+            </div>
+        </md-card-content>
+    </md-card>
+    <div flex>
+        <md-card>
+            <md-tabs ng-if="$ctrl.selectedList" class="md-primary" md-dynamic-height md-selected="$ctrl.tabIndex">
+                <md-tab>
+                    <md-tab-label><span ma-tr="common.points"></span></md-tab-label>
+                    <md-tab-body>
+                         <wi-point-list-table
+                            ng-if="$ctrl.tabIndex == 0"
+                            columns="$ctrl.selectedList.context.defaultColumns" 
+                            sort='$ctrl.selectedList.context.defaultSort'
+                            query="$ctrl.watchList.query"> 
+                        </wi-point-list-table>
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.events"></span></md-tab-label>
+                    <md-tab-body>
+                        <div ng-if="$ctrl.tabIndex == 1" ng-init="acknowledged='any'; activeStatus='any'; alarmLevel='any'">
+                            <wi-event-table 
+                                alarm-level="alarmLevel"
+                                acknowledged="acknowledged"
+                                active-status="activeStatus"
+                                point-query="$ctrl.watchList.query">
+                            </wi-event-table>
+                        </div>
+                    </md-tab-body>
+                </md-tab>
+            </md-tabs>
+
+            <wi-device-dialog></wi-device-dialog>
+        </md-card>
+    </div>
+</div>
+

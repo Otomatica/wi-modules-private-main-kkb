@@ -1,0 +1,183 @@
+
+<div class="md-padding" >
+    <div layout layout-align="space-between center">
+        <md-input-container>
+            <label ma-tr="ui.app.dataPoint"></label>
+            <md-select ng-model="$ctrl.point">
+                <md-option ng-repeat="point in $ctrl.points" ng-value="point">
+                    <span ng-bind="point.deviceName + ' - ' + point.name"></span>
+                </md-option>
+            </md-select>
+        </md-input-container>
+        <md-switch ng-model="$ctrl.chartConfig.groupBy">
+            <span ma-tr="maintenanceEvents.type.day"></span> / <span ma-tr="maintenanceEvents.type.week"></span>
+        </md-switch>
+    </div>
+
+    <div layout layout-align="center" ng-if="$ctrl.point">
+        <span style="margin-right: 5px;" 
+            ma-tr="{{ dateBar.preset && ($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translation || 'ui.app.dateRangePreset'}}" 
+            ma-tr-args="($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translationArgs"></span>
+            (<span ma-tr="{{($root.rollupTypes | filter:{type: dateBar.rollupType} | maFirst:true).translation}}"></span>)
+        </span>
+    </div>
+</div>
+
+<ma-point-values
+    ng-if="$ctrl.chartPoints.length && dateBar.rollupType == $ctrl.rollup.type"
+    rendered="true"
+    point="$ctrl.point"
+    from="dateBar.from" 
+    to="dateBar.to"
+    simplify-tolerance="dateBar.simplifyTolerance"
+    rollup="{{dateBar.rollupType}}" 
+    rollup-interval="{{dateBar.rollupIntervals + ' ' + dateBar.rollupIntervalPeriod}}"
+    on-values-updated="$ctrl.formatDates($values)">
+</ma-point-values>
+
+<div class="md-padding" ng-if="$ctrl.point">
+    <wi-rollup-check  points="[$ctrl.point]" rollup="$ctrl.rollup" chart-points="$ctrl.chartPoints"></wi-rollup-check>
+    <div ng-if="$ctrl.chartPoints.length">
+         <div layout="column" layout-gt-md="row" layout-align="start">
+            <div layout="column" layout-align="start start" class="md-padding">
+                <div layout>
+                   <md-input-container>
+                        <label ma-tr="ui.app.pointAxis"></label>
+                        <md-select ng-model="$ctrl.chartConfig.position">
+                            <md-option value="top">
+                                <span ma-tr="pointList.heatMap.top"></span>
+                            </md-option>
+                            <md-option value="bottom">
+                                <span ma-tr="pointList.heatMap.bottom"></span>
+                            </md-option>
+                            <md-option value="left">
+                                <span ma-tr="ui.app.left"></span>
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div layout="column">
+                   <span layout layout-align="space-between center">
+                        <ma-color-picker ng-model="$ctrl.color" ng-change="$ctrl.chartConfig.colors.push($ctrl.color);"></ma-color-picker>
+                        <md-icon>add</md-icon>
+                    </span>
+                    </br>
+                    <span layout layout-align="space-between center" ng-repeat="color in $ctrl.chartConfig.colors">
+                        <ma-color-picker disabled="true" ng-model="color"></ma-color-picker> 
+                        <div layout layout-align="space-between center">
+                            <md-icon class="wi-no-focus" ng-click="$ctrl.chartConfig.colors.splice($index, 1)">clear</md-icon>
+                        </div>
+                    </span>
+                </div>
+            </div>
+            <div flex>
+                <div class="md-padding">
+                    <ma-heat-map flex
+                        style="height: 400px;"
+                        group-by="{{$ctrl.chartConfig.groupBy ? 'weeks' : 'days'}}"
+                        auto-scale="$ctrl.point.dataType != 'BINARY'"
+                        colors="$ctrl.chartConfig.colors"
+                        legend="{position: $ctrl.chartConfig.position}"
+                        min-value="$ctrl.point.dataType == 'BINARY' && 0"
+                        max-value="$ctrl.point.dataType == 'BINARY' && 1"
+                        point-values="$ctrl.values">
+                    </ma-heat-map>
+                </div>
+            </div>
+        </div>
+        <div class="md-padding">
+            <ma-serial-chart flex
+                ng-if="dateBar.preset == 'PREVIOUS_WEEK' || dateBar.preset == 'WEEK_SO_FAR' || dateBar.preset == 'LAST_1_WEEKS'"
+                style="height: 350px;"
+                series-1-values="$ctrl.dayValues[0]" 
+                series-1-title="{{$ctrl.dayConfiguration[0].translation | maTr}}"
+                series-1-color="{{$ctrl.dayConfiguration[0].color}}"
+                series-1-axis="{{$ctrl.dayConfiguration[0].axis}}"
+                series-1-type="{{$ctrl.dayConfiguration[0].type}}"
+
+                series-2-values="$ctrl.dayValues[1]" 
+                series-2-title="{{$ctrl.dayConfiguration[1].translation | maTr}}"
+                series-2-color="{{$ctrl.dayConfiguration[1].color}}"
+                series-2-axis="{{$ctrl.dayConfiguration[1].axis}}"
+                series-2-type="{{$ctrl.dayConfiguration[1].type}}" 
+
+                series-3-values="$ctrl.dayValues[2]" 
+                series-3-title="{{$ctrl.dayConfiguration[2].translation | maTr}}" 
+                series-3-color="{{$ctrl.dayConfiguration[2].color}}"
+                series-3-axis="{{$ctrl.dayConfiguration[2].axis}}"
+                series-3-type="{{$ctrl.dayConfiguration[2].type}}" 
+
+                series-4-values="$ctrl.dayValues[3]" 
+                series-4-title="{{$ctrl.dayConfiguration[3].translation | maTr}}" 
+                series-4-color="{{$ctrl.dayConfiguration[3].color}}"
+                series-4-axis="{{$ctrl.dayConfiguration[3].axis}}"
+                series-4-type="{{$ctrl.dayConfiguration[3].type}}" 
+
+                series-5-values="$ctrl.dayValues[4]" 
+                series-5-title="{{$ctrl.dayConfiguration[4].translation | maTr}}"
+                series-5-color="{{$ctrl.dayConfiguration[4].color}}"
+                series-5-axis="{{$ctrl.dayConfiguration[4].axis}}"
+                series-5-type="{{$ctrl.dayConfiguration[4].type}}"  
+
+                series-6-values="$ctrl.dayValues[5]" 
+                series-6-title="{{$ctrl.dayConfiguration[5].translation | maTr}}" 
+                series-6-color="{{$ctrl.dayConfiguration[5].color}}"
+                series-6-axis="{{$ctrl.dayConfiguration[5].axis}}"
+                series-6-type="{{$ctrl.dayConfiguration[5].type}}" 
+
+                series-7-values="$ctrl.dayValues[6]"
+                series-7-title="{{$ctrl.dayConfiguration[6].translation | maTr}}" 
+                series-7-color="{{$ctrl.dayConfiguration[6].color}}"
+                series-7-axis="{{$ctrl.dayConfiguration[6].axis}}"
+                series-7-type="{{$ctrl.dayConfiguration[6].type}}" 
+
+                legend="true"
+                balloon="true"
+                time-format="LTS"
+                default-axis="right"
+                options="{
+                    legend: {valueWidth: 50, position:'right', marginLeft:0, autoMargins:false}, 
+                    categoryAxis: {labelRotation:45, firstDayOfWeek:0}
+                }">
+            </ma-serial-chart>
+
+            <md-table-container ng-if="dateBar.preset == 'PREVIOUS_WEEK' || dateBar.preset == 'WEEK_SO_FAR' || dateBar.preset == 'LAST_1_WEEKS'">
+               <table md-table>
+                    <thead md-head>
+                        <tr md-row ma-fix-sort-icons>
+                            <th md-column ma-tr="dateAndTime.day"></th>
+                            <th md-column ma-tr="ui.app.lineColor"></th>
+                            <th md-column ma-tr="ui.app.chartType"></th>
+                            <th md-column ma-tr="ui.app.pointAxis"></th>
+                        </tr>
+                    </thead>
+                    <tbody md-body>
+                        <tr md-row ng-repeat="day in $ctrl.dayValues">
+                            <td md-cell ma-tr="{{$ctrl.dayConfiguration[$index].translation}}"></td>
+                            <td md-cell>
+                                <ma-color-picker ng-model="$ctrl.dayConfiguration[$index].color"></ma-color-picker>
+                                {{$ctrl.dayConfiguration[$index].color}}
+                            </td>
+                            <td md-cell>
+                                <md-select ng-model="$ctrl.dayConfiguration[$index].type">
+                                    <md-option value="line" ma-tr="ui.app.line"></md-option>
+                                    <md-option value="smoothedLine" ma-tr="ui.app.smooth"></md-option>
+                                    <md-option value="step" ma-tr="ui.app.step"></md-option>
+                                    <md-option value="column" ma-tr="ui.app.bar"></md-option>
+                                </md-select>
+                            </td>
+                            <td md-cell>
+                                <md-select ng-init="$ctrl.dayConfiguration[$index].axis = $ctrl.dayConfiguration[$index].axis" ng-model="$ctrl.dayConfiguration[$index].axis">
+                                    <md-option ng-repeat="axis in $ctrl.axisOptions track by axis.name" ng-value="axis.name">
+                                        <span ma-tr="{{axis.translation}}"></span>
+                                    </md-option>
+                                </md-select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+
+        </div>
+    </div>
+</div>

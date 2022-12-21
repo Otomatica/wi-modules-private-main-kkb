@@ -1,0 +1,186 @@
+<style>
+    .wi-primary-highlight {
+        animation: wi-primary-highlight-animation 1.5s ease 0s 1; 
+    }
+
+    @keyframes wi-primary-highlight-animation {
+        0% { box-shadow: none; }
+        50% { box-shadow: 0 0 10px 5px var(--ma-primary); }
+        100% { box-shadow: none; } 
+    }
+
+    .wi-comment-highlight {
+        animation: wi-comment-highlight-animation 1.5s ease 0s 1;
+    }
+
+    @keyframes wi-comment-highlight-animation {
+        0% { box-shadow: none; }
+        50% { box-shadow: 0 0 10px 5px var(--ma-foreground-1); }
+        100% { box-shadow: none; } 
+    }
+
+    .b-grid-header,
+    .b-resourceheader-cell,
+    .b-sch-header-timeaxis-cell, 
+    .b-gridbase.b-sort .b-grid-header.b-sort .b-grid-header-text {
+        color: white !important;
+    }
+
+    .b-grid-splitter-buttons {
+        display: none !important;
+    }
+
+    .b-grid-header {
+        background: var(--ma-primary-hue-2) !important;
+    }
+
+    .b-tooltip-content {
+        background: var(--ma-background) !important;
+    }
+
+    .b-tooltip-content, .b-popup, .b-panel {
+        color: var(--ma-foreground-1) !important;
+    }
+
+    .b-gridbase.b-split .b-grid-splitter .b-icon,
+    .b-gridbase.b-sort .b-grid-header.b-sort .b-grid-header-text::after,
+    .b-gridbase.b-sort:not(.b-column-resizing) .b-grid-header-container:not(.b-dragging-header) .b-grid-header.b-sortable.b-depth-0:hover:not(.b-sort):not(.b-group) .b-grid-header-text::after,
+    .b-gridbase.b-sort:not(.b-column-resizing) .b-grid-header-container:not(.b-dragging-header) .b-grid-header.b-sortable.b-depth-0:focus:not(.b-sort):not(.b-group) .b-grid-header-text::after {
+        color: var(--ma-background-hue-1) !important;
+    }
+
+    .b-grid-header-container,
+    .b-verticaltimeaxiscolumn,
+    .b-grid-header-container .b-sch-timeaxiscolumn,
+    .b-grid-header-container .b-sch-timeaxiscolumn.b-depth-0:hover {
+        background-color: var(--ma-primary-hue-2) !important;
+    }
+
+    .b-grid-cell.b-focused:after {
+        border: 2px solid var(--ma-accent) !important;
+    }
+
+    .b-sch-event-wrap:not(.b-milestone-wrap).b-active .b-sch-event {
+        outline: 2px solid var(--ma-primary) !important;
+    }
+
+    .b-gridbase.b-split .b-grid-splitter,
+    .b-gridbase.b-split .b-grid-splitter.b-hover .b-grid-splitter-inner, 
+    .b-gridbase.b-split .b-grid-splitter.b-moving .b-grid-splitter-inner,
+    .b-gridbase.b-split .b-grid-splitter.b-grid-splitter-collapsed .b-grid-splitter-inner {
+        background: var(--ma-primary) !important;
+    }
+
+    .b-menuitem.b-contains-focus, .b-menuitem:focus,
+    .b-resourceheader-cell:hover,
+    .b-verticaltimeaxis .b-sch-header-timeaxis-cell:hover,
+    .b-grid-header-container .b-sch-timeaxiscolumn .b-sch-header-timeaxis-cell:hover,
+    .b-gridbase:not(.b-column-resizing) .b-grid-header-container:not(.b-dragging-header) .b-depth-0:not(.b-sch-timeaxiscolumn):hover,
+    .b-gridbase:not(.b-column-resizing) .b-grid-header-container:not(.b-dragging-header) .b-depth-0:not(.b-sch-timeaxiscolumn):focus {
+        background-color: var(--ma-accent) !important;
+    }
+
+    .b-grid-header .b-sch-timerange.b-sch-current-time,
+    .b-verticaltimeaxiscolumn .b-sch-timerange {
+        background-color: var(--ma-accent) !important;
+    }
+
+    .b-sch-vertical .b-timeline-subgrid .b-sch-line {
+        border-top: 2px dotted var(--ma-accent) !important;
+    }
+
+    .b-timeline-subgrid .b-sch-current-time {
+        border-left-color: var(--ma-accent) !important;
+    }
+
+    .sch-container {
+        border: 1px solid var(--ma-primary-hue-2) !important;
+    }
+
+    .wi-bottom-sheet {
+        border: 2px solid var(--ma-primary-hue-2) !important;
+    }
+</style>
+<div layout="column">
+    <div class="md-padding">
+          <div layout="row" layout-align="space-between center" layout-wrap>
+            <md-switch ng-change="$ctrl.filterResources()" ng-model="$ctrl.filter">
+                <span ma-tr="pointList.timeLine.filterEvents" ma-tr-args=[engine.events.length]></span>
+            </md-switch>
+            <md-icon class="wi-no-focus" ng-click="$ctrl.getEvents()">
+                <md-tooltip ma-tr="common.refresh"></md-tooltip>
+                refresh
+            </md-icon>
+            <span flex></span>
+            <md-switch class="md-primary wi-switch-label" ma-tr="ui.app.realtime" ng-model="$ctrl.realtime" 
+                ng-init="$ctrl.realtime = true" ng-disabled="$ctrl.disableRealtime"></md-switch>
+            <md-switch class="wi-switch-label" ng-model="$ctrl.mode" ma-tr="ui.app.dateMode" ng-change="$ctrl.initEngine(); $ctrl.getEvents();"></md-switch>
+            <md-button class="md-raised md-primary md-hue-2" ng-click="$ctrl.acknowledgeAll()" ng-disabled="!$ctrl.totalUnAcknowledged">
+                <md-icon>done_all</md-icon>
+                <span ma-tr="ui.app.acknowledgeXEvents" ma-tr-args="[$ctrl.totalUnAcknowledged]"></span>
+             </md-button>
+        </div>
+    </div>
+    <md-card-actions layout="row" layout-align="space-between center" layout-wrap>
+        <md-input-container flex>
+            <label ma-tr="common.alarmLevel"></label>
+            <md-select ng-model="$ctrl.alarmLevel">
+               <md-option value="any">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-all"></md-icon><span ma-tr="ui.app.any"></span>
+                </md-option>
+                <md-option value="NONE">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-none"></md-icon><span ma-tr="common.alarmLevel.none"></span>
+                </md-option>
+                <md-option value="INFORMATION">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-information"></md-icon><span ma-tr="common.alarmLevel.info"></span>
+                </md-option>
+                <md-option value="IMPORTANT">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-important"></md-icon><span ma-tr="common.alarmLevel.important"></span>
+                </md-option>
+                <md-option value="WARNING">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-warning"></md-icon><span ma-tr="common.alarmLevel.warning"></span>
+                </md-option>
+                <md-option value="URGENT">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-urgent"></md-icon><span ma-tr="common.alarmLevel.urgent"></span>
+                </md-option>
+                <md-option value="CRITICAL">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-critical"></md-icon><span ma-tr="common.alarmLevel.critical"></span>
+                </md-option>
+                <md-option value="LIFE_SAFETY">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-life-safety"></md-icon><span ma-tr="common.alarmLevel.lifeSafety"></span>
+                </md-option>
+            </md-select>
+        </md-input-container>
+        <md-input-container flex>
+            <label ma-tr="ui.app.activeStatus"></label>
+            <md-select ng-model="$ctrl.activeStatus">
+                <md-option value="any"><span ma-tr="ui.app.any"></span></md-option>
+                <md-option value="active"><span ma-tr="common.active"></span></md-option>
+                <md-option value="normal"><span ma-tr="common.rtn"></span></md-option>
+                <md-option value="noRtn"><span ma-tr="common.nortn"></span> (<span ma-tr="ui.app.instantaneous"></span>)</md-option>
+            </md-select>
+        </md-input-container>
+        <md-input-container flex>
+            <label ma-tr="ui.app.acknowledged"></label>
+            <md-select ng-model="$ctrl.acknowledged">
+                <md-option ng-value="'any'"><span ma-tr="ui.app.any"></span></md-option>
+                <md-option ng-value="true"><span ma-tr="ui.app.acknowledged"></span></md-option>
+                <md-option ng-value="false"><span ma-tr="ui.app.unAcknowledged"></span></md-option>
+            </md-select>
+        </md-input-container>
+    </md-card-actions>
+    <div ng-if="engine.events.length >= 500" class="md-padding" layout layout-align="center">  
+        <span>
+            <a class="md-warn wi-no-underline" ma-tr="wiseifUI.maximumEvents" ma-tr-args="[500]"></a> 
+            <span ma-tr="wiseifUI.reduceRollup"></span>
+        </span>
+    </div>
+
+    <div>
+        <div class="sch-container" ng-style="{'height': ($ctrl.points.length * 55 + 45 + 19) + 'px'}"
+            style="min-height: 600px; max-height: 600px;"></div>
+        <div style="position: absolute; bottom: 11px; right: 11px; font-size: 13px;">
+            &copy; {{'now' | maMoment:'year'}} <a class="wi-no-underline md-primary md-hue-3" href="https://www.linkedin.com/company/otomatica/" target="_blank">Otomatica</a>
+        </div>
+    </div>
+</div>

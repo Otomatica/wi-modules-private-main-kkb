@@ -1,0 +1,61 @@
+<md-progress-circular ng-if="$ctrl.promise.$$state.status == 0" class="md-accent" md-mode="indeterminate" md-diameter="20"></md-progress-circular>
+
+<md-button class="md-icon-button" ng-if="$ctrl.promise.$$state.status != 0 && $ctrl.activeEvents.length == 0" ng-click="$ctrl.openEvents($event)">
+    <md-tooltip ma-tr="pointList.stats.noActiveEvents"></md-tooltip>
+    <md-icon class="ma-acknowledged-checkbox ma-acknowledged">
+        alarm_on
+    </md-icon>
+</md-button>
+
+<div ng-if="!$ctrl.showSingleEvent || $ctrl.activeEvents.length > 1">
+    <md-button class="md-icon-button ma-badge" 
+        ng-repeat="alarmLevel in $ctrl.maEvents.levels track by alarmLevel.key" 
+        ng-click="$ctrl.openEvents($event, alarmLevel.key, 'active')"
+        ng-show="$ctrl.activeEvents[alarmLevel.key].length">
+        <md-tooltip md-visible="$ctrl.activeEvents[alarmLevel.key].tooltipVisible" style="height: auto;">
+            <span ng-if="$ctrl.activeEvents[alarmLevel.key].length != 1" ma-tr="{{alarmLevel.translation}}"></span>
+            <div ng-if="$ctrl.activeEvents[alarmLevel.key].length == 1 && $ctrl.activeEvents[alarmLevel.key].tooltipVisible">
+                <wi-single-events-display active-events="$ctrl.activeEvents[alarmLevel.key]" icon="{{$ctrl.icon}}"></wi-single-events-display>
+            </div>
+        </md-tooltip>
+        <md-icon ng-class="alarmLevel.materialClasses">{{$ctrl.icon || alarmLevel.materialIcon}}</md-icon>
+        <ma-badge md-colors="{'background': 'warn'}">
+             <span ng-bind="$ctrl.activeEvents[alarmLevel.key].length"></span>
+        </ma-badge>
+    </md-button>
+</div>
+
+<div ng-if="$ctrl.showSingleEvent && $ctrl.activeEvents.length == 1">
+    <wi-single-events-display active-events="$ctrl.activeEvents" icon="{{$ctrl.icon}}"></wi-single-events-display>
+</div>
+
+<ma-dialog ng-if="$ctrl.popupTitle"
+    show-dialog="$ctrl.showDialog" 
+    on-hide="$ctrl.showDialog = undefined;" 
+    on-cancel="$ctrl.showDialog = undefined;">
+    <md-dialog flex class="wi-device-view-dialog">
+        <md-toolbar class="md-warn md-hue-3">
+            <div class="md-toolbar-tools">
+                <span>
+                    <span ma-tr="ui.app.events"></span>: <span ng-bind="$ctrl.popupTitle"></span>
+                </span>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="$dialog.cancel()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content flex layout="column">
+            <div ng-if="$ctrl.showDialog" ng-init="acknowledged='any';">
+                <wi-event-table 
+                    disable-device-popup="$ctrl.disableDeviceLink"
+                    alarm-level="$ctrl.alarmLevel"
+                    acknowledged="acknowledged"
+                    active-status="$ctrl.activeStatus"
+                    point-query="$ctrl.pointQuery">
+                </wi-event-table>
+            </div>
+        </md-dialog-content>
+    </md-dialog>
+</ma-dialog>

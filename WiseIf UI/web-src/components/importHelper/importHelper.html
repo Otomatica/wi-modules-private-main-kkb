@@ -1,0 +1,15 @@
+
+<div layout layout-align="start center">
+	<md-button class="md-icon-button md-primary md-raised" ng-click="$ctrl.uploadFilesButtonClicked($event)">
+	    <md-icon>file_upload</md-icon>
+	    <md-tooltip md-autohide ma-tr="ui.app.uploadFiles"></md-tooltip>
+	</md-button>
+	<input style="display:none" type="file" ng-model="dummy" ma-change="$ctrl.uploadFilesChanged($event)" ng-attr-accept=".json">
+	<span ng-bind="$ctrl.errorMessage"></span>
+	<md-progress-circular ng-if="$ctrl.progress" class="md-accent" md-mode="indeterminate" md-diameter="24"></md-progress-circular>
+</div>
+
+<div layout layout-align="space-between">
+	<ma-ace-editor style="height: 700px;" flex class="md-padding" mode="json" ng-model="$ctrl.initial"></ma-ace-editor>
+	<ma-ace-editor style="height: 700px;" flex class="md-padding" mode="json" ng-model="$ctrl.result"></ma-ace-editor>
+</div>

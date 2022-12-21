@@ -1,0 +1,98 @@
+<md-card>
+    <md-toolbar class="md-hue-2">
+        <div class="md-toolbar-tools">
+        	<div class="wi-icon-container" layout flex="45" flex-gt-md="30">
+	   			<md-input-container flex md-no-float="true">
+				    <md-icon>search</md-icon>
+				    <input ng-model="query.filter" ma-focus-on="query.filter.length" ng-model-options="{debounce: 500}" ma-tr="ui.app.search">
+				</md-input-container>
+				<md-button class="md-icon-button" ng-class="{'md-accent' : query.filter}" ng-click="query.filter=''">
+			    	<md-icon>clear</md-icon>
+			    	<md-tooltip><span ma-tr="ui.app.clear"></span></md-tooltip>
+				</md-button>
+		    </div>
+			<span flex></span>
+	        <md-input-container md-no-float="true" flex="45" flex-gt-md="25">
+	            <md-icon>language</md-icon>
+	            <md-select 
+	            	ng-model="$ctrl.locale" 
+	            	ng-change="$ctrl.localeChanged()" 
+	            	md-selected-text="($ctrl.locales | filter:{id:$ctrl.locale}:true | maFirst).native">
+	                <md-option ng-repeat="locale in $ctrl.locales track by locale.id" ng-value="locale.id">
+	                	<span ng-bind="locale.name"></span>
+	                </md-option>
+	            </md-select>
+	        </md-input-container>
+			<md-button class="md-icon-button md-warn" ng-click="$root.clearTranslations()">
+		    	<md-icon>restore_page</md-icon>
+		    	<md-tooltip><span ma-tr="language.settings.clearCache"></span></md-tooltip>
+			</md-button>
+        </div>
+    </md-toolbar>
+    <md-card-content>
+
+		<md-table-container>
+		    <table md-table md-progress="promise">
+		        <thead md-head md-order="query.order">
+			        <tr md-row>
+			            <th md-order-by="key" md-column ma-tr="language.settings.key"></th>
+			            <th md-order-by="value" md-column ma-tr="common.value"></th>
+			            <th flex ng-repeat="locale in $ctrl.selection">
+			            	<div layout="column" layout-align="center center" style="font-size: 1.3rem;">
+								<span ng-bind="locale.fileName"></span>
+								<div>
+				            		(
+						            	<a ng-bind="locale.translations | wiNumKey"></a>
+						            	<span ma-tr="pagination.of"></span>
+						            	<span ng-bind="$ctrl.roots.length"></span>
+				            		)
+			            		</div>
+			            		<div layout layout-align="center center">
+				            		<md-button ng-if="locale.misMatch" class="md-icon-button md-accent" ng-click="$ctrl.clean(locale)">
+						    			<md-icon>compare_arrows</md-icon>
+							    		<md-tooltip><span ma-tr="language.settings.cleanupMismatched"></span></md-tooltip>
+							    		<ma-badge md-colors="{'background': 'primary-hue-2'}">
+							    			<span ng-bind="locale.misMatch"></span>
+							    		</ma-badge>
+									</md-button>
+				            		<md-button class="md-icon-button" ng-click="$ctrl.save(locale)">
+						    			<md-icon>save</md-icon>
+							    		<md-tooltip><span ma-tr="common.save"></span></md-tooltip>
+									</md-button>
+			            		</div>
+		            		</div>
+			            </th>
+			        </tr>
+		        </thead>
+		        <tbody md-body>
+			        <tr md-row ng-repeat="item in $ctrl.roots | filter: query.filter | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit">
+			            <td md-cell class="wi-break-word">
+		            		<a ng-repeat="part in $ctrl.parts(item.key) track by $index"
+		            			ng-class="{'md-primary md-hue-3' : !$first || $last}" 
+			            		ng-bind="part" 
+				            	ng-click="query.filter = part">
+			            	</a>
+			            </td>
+			            <td md-cell class="wi-break-word" ng-bind="item.value"></td>
+			            <td md-cell flex ng-repeat="locale in $ctrl.selection" 
+			            	ng-click="$root.cellEdit($event, locale.translations, item.key, 'common.value')">
+			            	<span class="wi-break-word" ng-bind="locale.translations[item.key]"></span>
+			            </td>
+			        </tr>
+		        </tbody>
+		    </table>
+		</md-table-container>
+
+
+		<div layout layout-align="end center">
+			<md-table-pagination 
+				md-limit="query.limit" 
+				md-limit-options="[20, 30, 50 , 100]" 
+				md-page="query.page" 
+				md-page-select
+				md-total="{{($ctrl.roots | filter: query.filter).length}}">
+			</md-table-pagination>
+		</div>
+
+    </md-card-content>
+</md-card>

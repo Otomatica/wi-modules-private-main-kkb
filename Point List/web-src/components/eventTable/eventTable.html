@@ -1,0 +1,209 @@
+
+<div class="md-padding">
+    <div layout="row" layout-align="end center" layout-wrap>
+        <div layout flex layout-align="end center">
+
+            <md-button class="md-icon-button ma-badge" ng-repeat="alarmLevel in $ctrl.maEvents.levels track by alarmLevel.key"
+                ng-if="page.events.pointIds.length && page.activeEvents[alarmLevel.key].length" ng-click="$ctrl.filter(alarmLevel.key)" >
+                <md-tooltip ma-tr="{{alarmLevel.translation}}"></md-tooltip>
+                <md-icon class="ma-alarm-flag" ng-class="alarmLevel.materialClasses">{{alarmLevel.materialIcon}}</md-icon>
+                <ma-badge md-colors="{'background': !$ctrl.dateFilter && $ctrl.acknowledged == 'any' && $ctrl.activeStatus == 'active' && $ctrl.alarmLevel == alarmLevel.key ? 'primary-hue-2' : 'warn'}">
+                     <span ng-bind="page.activeEvents[alarmLevel.key].length"></span>
+                </ma-badge>
+            </md-button>
+            <wi-active-events hide="true" point-ids="page.events.pointIds" active-events="page.activeEvents"></wi-active-events>
+        </div>
+        <md-button style="margin-right: -10px;" class="md-icon-button" ng-click="$ctrl.filter('any', 'any')"
+            ng-class="{'md-accent': $ctrl.alarmLevel != 'any' || $ctrl.activeStatus != 'any' || $ctrl.acknowledged != 'any' || $ctrl.dateFilter}">
+            <md-tooltip ma-tr="ui.app.clearFilters"></md-tooltip>
+            <md-icon>clear</md-icon>
+        </md-button>
+        <md-button class="md-icon-button" ng-click="$ctrl.refresh = !$ctrl.refresh">
+            <md-tooltip><span ma-tr="ui.app.refreshTable"></span></md-tooltip>
+            <md-icon>refresh</md-icon>
+        </md-button>
+        <md-switch class="wi-switch-label" ng-init="$ctrl.dateFilter = false" ng-model="$ctrl.dateFilter" ma-tr="ui.app.dateFilter"></md-switch>
+    </div>
+    <div layout="row" layout-align="space-between center" layout-wrap>
+        <md-input-container flex>
+            <label ma-tr="common.alarmLevel"></label>
+            <md-select ng-model="$ctrl.alarmLevel">
+               <md-option value="any">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-all"></md-icon><span ma-tr="ui.app.any"></span>
+                </md-option>
+                <md-option value="NONE">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-none"></md-icon><span ma-tr="common.alarmLevel.none"></span>
+                </md-option>
+                <md-option value="INFORMATION">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-information"></md-icon><span ma-tr="common.alarmLevel.info"></span>
+                </md-option>
+                <md-option value="IMPORTANT">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-important"></md-icon><span ma-tr="common.alarmLevel.important"></span>
+                </md-option>
+                <md-option value="WARNING">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-warning"></md-icon><span ma-tr="common.alarmLevel.warning"></span>
+                </md-option>
+                <md-option value="URGENT">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-urgent"></md-icon><span ma-tr="common.alarmLevel.urgent"></span>
+                </md-option>
+                <md-option value="CRITICAL">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-critical"></md-icon><span ma-tr="common.alarmLevel.critical"></span>
+                </md-option>
+                <md-option value="LIFE_SAFETY">
+                    <md-icon class="fa fa-flag fa-lg ma-alarm-flag ma-alarm-level-life-safety"></md-icon><span ma-tr="common.alarmLevel.lifeSafety"></span>
+                </md-option>
+            </md-select>
+        </md-input-container>
+
+        <md-input-container flex>
+            <label ma-tr="ui.app.activeStatus"></label>
+            <md-select ng-model="$ctrl.activeStatus">
+                <md-option value="any"><span ma-tr="ui.app.any"></span></md-option>
+                <md-option value="active"><span ma-tr="common.active"></span></md-option>
+                <md-option value="normal"><span ma-tr="common.rtn"></span></md-option>
+                <md-option value="noRtn"><span ma-tr="common.nortn"></span> (<span ma-tr="ui.app.instantaneous"></span>)</md-option>
+            </md-select>
+        </md-input-container>
+
+        <md-input-container flex>
+            <label ma-tr="ui.app.acknowledged"></label>
+            <md-select ng-model="$ctrl.acknowledged">
+                <md-option ng-value="'any'"><span ma-tr="ui.app.any"></span></md-option>
+                <md-option ng-value="true"><span ma-tr="ui.app.acknowledged"></span></md-option>
+                <md-option ng-value="false"><span ma-tr="ui.app.unAcknowledged"></span></md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+</div>
+
+<wi-event-query
+    ng-init="$ctrl.refresh = false"
+    refresh="$ctrl.refresh"
+    auto-refresh="false"
+    date-filter="$ctrl.dateFilter"
+    alarm-level="$ctrl.alarmLevel"
+    active-status="$ctrl.activeStatus"
+    acknowledged="$ctrl.acknowledged"
+    point-query="$ctrl.pointQuery"
+    point-ids="$ctrl.pointIds"
+    start="(query.page-1)*query.limit"
+    limit="query.limit"
+    sort="query.order"
+    events="page.events"
+    promise="page.promise">
+</wi-event-query>
+
+<div layout="column" layout-gt-sm="row" flex layout-align="end end">
+    <md-table-pagination flex flex-order="3" flex-order-gt-sm="1" class="ma-pagination-underline" 
+        md-page-select
+        md-limit="query.limit" 
+        md-limit-options="[5, 10, 20]" 
+        md-page="query.page" 
+        md-total="{{page.events.total}}">
+    </md-table-pagination>
+</div>
+
+<md-table-container style="margin-bottom: 20px;">
+    <table md-table md-progress="page.promise">
+        <thead md-head md-order="query.order">
+            <tr md-row>
+                <th md-column md-order-by="alarmLevel" ma-tr="ui.app.alarmLvl" class="ma-medium-column"></th>
+                <th md-column md-order-by="activeTimestamp" ma-tr="ui.app.time" class="ma-medium-column"></th>
+                <th md-column md-order-by="message" ma-tr="ui.app.msg" class="ma-message-column"></th>
+                <th md-column md-order-by="rtnTimestamp" ma-tr="ui.app.activeStatus" class="ma-medium-column"></th>
+                <th md-column ma-tr="ui.app.duration" class="ma-medium-column"></th>
+                <th md-column md-order-by="acknowledgedTimestamp" ma-tr="ui.app.acknowledge" class="ma-narrow-column ma-text-centered"></th>
+            </tr>
+        </thead>
+        <tbody md-body ng-hide="page.events.items.length">
+            <tr md-row>
+                <td md-cell colspan="6" style="height:60px; font-weight: bold;" ma-tr="ui.app.noEventsFound"></td>
+            </tr>
+        </tbody>
+        <tbody md-body ng-show="page.events.items.length">
+            <tr md-row ng-repeat="event in page.events.items track by event.id">
+                <td md-cell class="ma-medium-column">
+                    <md-icon class="ma-alarm-flag wi-no-focus" ng-class="event.alarmLevel" ng-click="$ctrl.addNote($event, event)">
+                        flag
+                        <md-tooltip md-delay="250" md-direction="right" md-autohide>
+                            <span ng-bind="event.alarmLevel"></span> -
+                            (<span ma-tr="ui.app.eventId"></span>: {{event.id}})
+                        </md-tooltip>
+                    </md-icon>
+                    <span ng-if="toggle" ng-init="$ctrl.getPoint(event)">
+                        <span ng-if="event.point">
+                            <md-icon class="wi-no-focus"
+                                ng-if="!$ctrl.disableDevicePopup && $root.popupDevice" 
+                                ng-click="$root.popupDevice(event.point.deviceName)" ng-class="{'md-primary' : event.deviceTooltip}">
+                                important_devices
+                                <md-tooltip md-delay="250" md-visible="event.deviceTooltip" md-direction="right" md-autohide>
+                                    <span ng-bind="event.point.deviceName"></span>
+                                </md-tooltip>
+                            </md-icon>
+                            <md-icon class="wi-no-focus" ng-click="$root.popupPoint($event, event.point, 'table')" ng-class="{'md-primary' : event.valueTooltip}">
+                                visibility
+                                <md-tooltip md-delay="250" md-visible="event.valueTooltip" md-direction="right" md-autohide>
+                                    <span ng-show="false" ng-bind="'|'"></span>
+                                    <ma-point-value ng-if="event.valueTooltip" label="DEVICE_AND_NAME" hide-event-indicator="true" point="event.point">
+                                </md-tooltip>
+                            </md-icon>
+                            <md-icon class="wi-no-focus" ng-click="$root.popupPoint($event, event.point, 'chart')" ng-class="{'md-primary' : event.pointTooltip}">
+                                trending_up
+                                <md-tooltip md-delay="250" md-visible="event.pointTooltip" md-direction="right" md-autohide style="height: auto; width: 450px;">
+                                    <span ng-show="false" ng-bind="'|'"></span>
+                                    <wi-tooltip-chart ng-if="event.pointTooltip" point="event.point"></wi-tooltip-chart>
+                                </md-tooltip>
+                            </md-icon>
+                        </span>
+                    </span>
+                </td>
+                <td md-cell ng-bind="event.activeTimestamp | maDate:'shortDateTimeSeconds'"></td>
+                
+                <td md-cell class="ma-message-column" ng-class="{'ma-truncated' : !toggle}" ng-click="toggle = !toggle">
+                    <md-icon ng-if="event.comments.length" ng-class="{'md-primary' : event.noteTooltip}">
+                        speaker_notes
+                        <md-tooltip md-visible="event.noteTooltip" md-delay="250" md-direction="right" md-autohide ma-tr="ui.app.hasNotes"></md-tooltip>
+                    </md-icon>
+                    <span ng-bind-html="$ctrl.$sanitize(event.message)"></span>
+                    <div ng-if="event.comments">
+                        <div ng-repeat="note in event.comments">
+                            <strong ng-bind="note.comment"></strong> 
+                                (<span ng-bind="note.username"></span> &mdash; <span ng-bind="note.timestamp | maDate:'shortDateTimeSeconds'"></span>)
+                        </div>
+                    </div>
+                </td>
+                
+                <!-- Status column -->
+                <td md-cell ng-switch="event.rtnApplicable">
+                    <span ng-switch-when="true">
+                        <span ng-if="event.active" md-colors="::{color: 'accent'}" class="ma-active-status" ma-tr="common.active"></span>
+                        <span ng-if="event.rtnTimestamp != null">
+                            <span ng-bind="event.rtnMessage"></span> &mdash;
+                            <span ng-bind="event.rtnTimestamp | maDate:'shortDateTime'"></span>
+                        </span>
+                    </span>
+                    <span ng-switch-default>
+                        <span ma-tr="common.nortn"></span>
+                    </span>
+                </td>
+                
+                <!-- Duration column -->
+                <td md-cell class="ma-medium-column" ng-switch="event.rtnApplicable">
+                    <span ng-switch-when="true" ng-bind="$ctrl.formatDuration(event.duration)"></span>
+                    <span ng-switch-default ma-tr="ui.app.instantaneous"></span>
+                </td>
+                
+                <td md-cell class="ma-narrow-column ma-text-centered">
+                    <md-icon class="ma-acknowledged-checkbox" ng-click="$ctrl.acknowledgeEvent(event);" ng-if="!event.acknowledged">
+                        done
+                        <md-tooltip ma-tr="events.acknowledge"></md-tooltip>
+                    </md-icon>
+                    <md-icon class="ma-acknowledged-checkbox ma-acknowledged" ng-if="event.acknowledged">
+                        check_circle
+                        <md-tooltip ma-tr="ui.app.acknowledgedByAt" ma-tr-args="[(event.acknowledgedByUsername || ''), (event.acknowledgedTimestamp | maDate:'shortDateTime')]"></md-tooltip>
+                    </md-icon>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-table-container>

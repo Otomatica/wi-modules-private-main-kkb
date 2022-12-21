@@ -1,0 +1,85 @@
+<!--
+<style>
+.amchart:not(.amcharts-custom-color) .amcharts-guide {
+    fill: var(--ma-primary-hue-1);
+    stroke: var(--ma-primary-hue-1);
+}
+</style>
+-->
+
+<div ng-style="{minHeight: ($ctrl.point.dataType == 'NUMERIC' || $ctrl.numericPoint ? 250 : 100) + 'px', width: 450 + 'px'}">
+
+	<ma-get-point-value ng-if="!$ctrl.point" point="$ctrl.point" point-xid="{{$ctrl.pointXid}}" 
+		on-value-updated="$ctrl.realTimeUpdate(point)">
+	</ma-get-point-value>
+
+	<div style=" height: 100%; width: 100%; position: absolute;" layout layout-align="center center"
+		ng-if="!$ctrl.point 
+			|| (!$ctrl.numericPoint && $ctrl.chartPoints.length && !$ctrl.rendered) 
+			|| ($ctrl.numericPoint && !$ctrl.rendered)">
+		<md-progress-circular class="md-accent" md-mode="indeterminate" md-diameter="30"></md-progress-circular>
+	</div>
+
+	<div ng-if="$ctrl.point">
+		<wi-rollup-check style="position: absolute; margin-top: 20px;" points="[$ctrl.point]" rollup="rollup" chart-points="$ctrl.chartPoints">
+		</wi-rollup-check>
+
+		<div ng-if="$ctrl.point.dataType == 'MULTISTATE' || $ctrl.point.dataType == 'BINARY'"
+			style="position: absolute; margin-top: 20px;" layout="column" layout-align="start center" layout-wrap>
+			<div layout="column" class="md-padding" ng-if="$ctrl.point.notAllowed && $ctrl.chartPoints.length == 1">
+		        <span ma-tr="wiseifUI.maximumValues" ma-tr-args="[500]"></span>
+		        <a class="md-accent wi-no-underline" ma-tr="wiseifUI.reduceRollup"></a>
+			</div>
+		</div>
+
+		<div style="position: absolute; width: 100%;" layout="column" layout-align="start center" layout-wrap>
+	        <ma-point-value
+	            point="$ctrl.point" 
+	            label="DEVICE_AND_NAME" 
+	            hide-event-indicator="true" 
+	            flash-on-change="true"
+	            on-value-updated="$ctrl.realTimeUpdate($point)">
+	        </ma-point-value>
+		</div>
+
+		<div ng-if="$ctrl.values">
+			<ma-serial-chart ng-if="$ctrl.point.dataType == 'NUMERIC'"
+				style="height:250px; width: 450px;"
+				series-1-point="$ctrl.point"
+				series-1-values="$ctrl.values"
+				series-2-values="$ctrl.realTimes"
+				options="{ 
+					chartCursor: false, 
+					listeners: [{event:'dataUpdated', method:$ctrl.chartCallback}] 
+				}"
+				legend="false"
+				export="false">
+					
+			</ma-serial-chart>
+
+			<ma-state-chart ng-if="$ctrl.point.dataType == 'MULTISTATE' || $ctrl.point.dataType == 'BINARY'"
+				style="height:100px; width:450px;"
+				options="{ 
+					chartCursor: false, 
+					listeners: [{event:'dataUpdated', method:$ctrl.chartCallback}] 
+				}"
+				series-1-title=" "
+			 	series-1-labels="$ctrl.chartPoints[0].chartRenderColors"
+				series-1-values="!$ctrl.point.notAllowed && $ctrl.values">
+			</ma-state-chart>
+		</div>
+
+		<ma-point-values
+			ng-if="$ctrl.chartPoints.length && dateBar.rollupType == rollup.type"
+			point="$ctrl.point"
+			from="dateBar.from"
+			to="dateBar.to"
+			rendered="true"
+			bookend="true"
+			simplify-tolerance="dateBar.simplifyTolerance"
+			rollup="{{dateBar.rollupType}}"
+			rollup-interval="{{dateBar.rollupIntervals}} {{dateBar.rollupIntervalPeriod}}"
+			on-values-updated="$ctrl.valuesUpdated($values)">
+		</ma-point-values>
+	</div>
+</div>

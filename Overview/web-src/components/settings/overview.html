@@ -1,0 +1,402 @@
+<ma-json-store xid="overview-settings" item="$ctrl.storeItem" value="$ctrl.setting"></ma-json-store>
+<ma-json-store xid="mangoUI-pages" value="pageStore"></ma-json-store>
+
+<div ng-form="$ctrl.form" ng-if="$ctrl.tags.length">
+
+    <md-card>
+        <md-toolbar class="md-hue-3">
+            <div class="md-toolbar-tools" layout-align="space-between center">
+                <span>
+                    <span ma-tr="overview.settings"></span>
+                    (<span ng-bind="$ctrl.graphCount"></span>)
+                </span>
+                <md-switch class="wi-switch-label" ng-model="$ctrl.preview" ng-change="$ctrl.resetState()" ma-tr="ui.app.preview"></md-switch>
+            </div>
+        </md-toolbar>
+        <div class="md-padding" layout layout-align="space-between start" layout-wrap>
+           <md-input-container flex="100" flex-gt-md="45" class="ma-input-space-between">
+                <label ma-tr="ui.components.tagHierarchy"></label>
+                <md-select name="tag" flex ng-model="$ctrl.setting.tags" ng-model-options="{trackBy: '$value.key'}" ng-change="$ctrl.selected = null" required multiple>
+                    <md-option ng-repeat="tag in $ctrl.tagObjects" ng-value="tag">
+                        <span ng-bind="tag.key"></span>
+                    </md-option>
+                </md-select>
+                <div flex>
+                    <wi-reorder flex="100" flex-gt-md="45" model="$ctrl.setting.tags" prop="key" sortable-stop="$ctrl.setting.defaultValue = undefined"></wi-reorder>
+                    <span ng-repeat="tag in $ctrl.setting.tags">
+                        <a class="md-primary" ng-bind="tag.key"></a>
+                        <span ng-if="!$last"> > </span>
+                    </span>  
+                </div>
+            </md-input-container>
+            
+            <md-input-container flex="100" flex-gt-md="45" class="ma-input-space-between">
+                <ma-data-point-tag-select flex
+                    ng-if="$ctrl.setting"
+                    style="margin-top: -20px; width: 100%;"
+                    show-any-option="false"
+                    key="{{$ctrl.setting.tags[0].key}}"  
+                    ng-model="$ctrl.setting.defaultValue" 
+                    required>
+                </ma-data-point-tag-select> 
+            </md-input-container>
+        </div>
+        <div flex="100" layout layout-align="start center" class="ma-margin-bottom">
+            <md-button class="md-raised md-primary" ng-click="$ctrl.save()" ng-disabled="!$ctrl.form.$valid">
+                <md-icon>save</md-icon> <span ma-tr="common.save"></span>
+            </md-button>
+        </div>
+    </md-card>
+
+    <div layout layout-wrap>
+        <md-card flex="100" flex-gt-md="25" >
+            <md-toolbar class="md-hue-3">
+                <div class="md-toolbar-tools">
+                    <span ma-tr="ui.components.tagHierarchy"></span>
+                </div>
+            </md-toolbar>
+            <md-list>
+                <md-list-item
+                    ng-repeat="tag in $ctrl.setting.tags"
+                    md-colors="{'background': $ctrl.selected.key === tag.key ? 'accent-hue-1' : 'background-hue-1'}"
+                    ng-click="$ctrl.tagSelected(tag)">
+                    <span ng-bind="tag.key"></span>
+                </md-list-item>
+            </md-list>
+            <md-card-content ng-if="!$ctrl.setting.tags.length">
+                <span ma-tr="ui.components.noItemsToList"></span>
+            </md-card-content>
+        </md-card>
+        <md-card flex ng-if="$ctrl.setting.tags.length && $ctrl.selected">
+            <md-tabs md-dynamic-height class="md-primary md-hue-2">
+                <md-tab>
+                    <md-tab-label><span ma-tr="common.points"></span></md-tab-label>
+                    <md-tab-body>
+                        <div class="md-padding" layout layout-align="space-between start" layout-wrap>
+                            
+                            <div layout flex="100">
+                                <md-input-container flex="100" flex-gt-md="100">
+                                    <label ma-tr="ui.app.rql"></label>
+                                    <input 
+                                    ng-model="$ctrl.selected.rql" 
+                                    ng-model-options="{updateOn: 'blur'}"
+                                    ma-ui-bracket-escape>
+                                </md-input-container>
+                            </div>
+
+                            <ma-query-builder 
+                                flex="100"
+                                style="margin-bottom:15px"
+                                ng-model="$ctrl.selected.rql"
+                                hide-sort-limit="true" 
+                                ng-model-options="{allowInvalid: true, debounce: 1000}">
+                            </ma-query-builder>
+
+                            <md-input-container flex="100" flex-gt-md="45" class="ma-input-space-between">
+                                <label ma-tr="overview.settings.defaultColumns"></label>
+                                <md-select name="tag" ng-model="$ctrl.selected.defaultColumns" multiple="" required>
+                                    <md-option ng-repeat="tag in $ctrl.tags" ng-value="tag">
+                                        <span ng-bind="tag"></span>
+                                    </md-option>
+                                </md-select>
+
+                                <wi-reorder model="$ctrl.selected.defaultColumns" discard="['name', 'device']"></wi-reorder>
+
+                                <div ng-messages="$ctrl.form.defaultColumns.$error">
+                                    <div ng-message="required" ma-tr="validate.required"></div>
+                                </div>
+                            </md-input-container>
+
+                            <md-input-container ng-if="$ctrl.selected.defaultColumns" layout flex="100" flex-gt-md="45" class="ma-input-space-between">
+                                <label ma-tr="overview.settings.defaultSort"></label>
+                                <md-select flex name="tag" ng-model="$ctrl.selected.defaultSort" required>
+                                    <md-option ng-repeat="column in $ctrl.selected.defaultColumns" ng-value="column">
+                                        <span ng-bind="column"></span>
+                                    </md-option>
+                                </md-select>
+                                <div ng-messages="$ctrl.form.defaultSort.$error">
+                                    <div ng-message="required" ma-tr="validate.required"></div>
+                                </div>
+                            </md-input-container>
+
+                            <div layout="column" flex="100" flex-gt-md="45">
+
+                                <md-input-container flex class="ma-input-space-between">
+                                    <label ma-tr="ui.components.tagHierarchy"></label>
+                                    <md-select name="tags" ng-change="$ctrl.viewTags=[]" ng-model="$ctrl.selected.tags" multiple="" required>
+                                        <md-option ng-repeat="tag in $ctrl.tags" ng-value="tag" ng-show="tag != $ctrl.selected.key">
+                                            <span ng-bind="tag"></span>
+                                        </md-option>
+                                    </md-select>
+
+                                    <wi-reorder model="$ctrl.selected.tags" discard="[$ctrl.selected.key]"
+                                        sortable-stop="$ctrl.viewTags=[]; $ctrl.copyTags()"></wi-reorder>
+
+                                    <div ng-messages="$ctrl.form.tags.$error">
+                                        <div ng-message="required" ma-tr="validate.required"></div>
+                                        <div ng-message="validationMessage" ng-bind="$ctrl.form.tags.validationMessage"></div>
+                                    </div>
+                                </md-input-container>
+
+
+                                <div layout layout-align="space-between end">
+                                    <md-input-container flex>
+                                        <label ma-tr="ui.app.maxDepth"></label>
+                                        <input name="maxDepth" ng-model="$ctrl.selected.maxDepth" type="number" min="0" max="{{$ctrl.selected.tags.length - 1}}" required>
+                                        <div ng-messages="$ctrl.form.maxDepth.$error">
+                                            <div ng-message="required" ma-tr="validate.required"></div>
+                                            <div ng-message="validationMessage" ng-bind="$ctrl.form.maxDepth.validationMessage"></div>
+                                        </div>
+                                    </md-input-container>
+                                    <md-switch ng-model="$ctrl.selected.selectAll" class="wi-switch-label" ma-tr="ui.app.selectAll"></md-switch>
+                                </div>
+                            </div>
+
+                            <md-input-container flex="100" flex-gt-md="45" class="ma-input-space-between">
+                                <div layout class="wi-tag-hierarchy-container">
+                                    <wi-tag-hierarchy flex="none"
+                                        ng-multiple="true"
+                                        ng-model="$ctrl.viewTags"
+                                        tags="$ctrl.selected.tags"
+                                        select-all="$ctrl.selected.selectAll"
+                                        max-depth="$ctrl.selected.maxDepth">
+                                    </wi-tag-hierarchy>
+                                </div>
+                            </md-input-container>
+                        </div>
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="common.alarmLevel.info"></span></md-tab-label>
+                    <md-tab-body>
+                        <div ma-sortable="{draggable: '.move-draggable', handle: '.ma-move-handle'}" ma-sortable-items="$ctrl.selected.tagGroups">
+                            <div class="md-padding move-draggable" layout layout-align="space-between start" layout-wrap ng-repeat="tagGroup in $ctrl.selected.tagGroups">
+
+                                <div layout layout-align="space-between center" flex="100" flex-gt-md="45">
+                                    <md-icon class="md-accent ma-move-handle">reorder</md-icon>
+                                    <md-input-container flex="100" class="ma-input-space-between">
+                                        <label ma-tr="overview.settings.tagGroupTitle"></label>
+                                        <input name="tagGroupTitle" ng-model="tagGroup.title" required>
+                                        <md-icon ng-click="$ctrl.selected.tagGroups.splice($index, 1)">delete</md-icon>
+                                        <div ng-messages="$ctrl.form.tagGroupTitle.$error">
+                                            <div ng-message="required" ma-tr="validate.required"></div>
+                                        </div>
+                                    </md-input-container>
+                                </div>
+
+                                <md-input-container flex="100" flex-gt-md="45" class="ma-input-space-between">
+                                    <label ma-tr="overview.settings.tagGroupTags"></label>
+                                    <md-select name="tagGroupTags" ng-model="tagGroup.tags" multiple="" required>
+                                        <md-option ng-repeat="tag in $ctrl.tags" ng-value="tag">
+                                            <span ng-bind="tag"></span>
+                                        </md-option>
+                                    </md-select>
+
+                                    <wi-reorder model="tagGroup.tags"></wi-reorder>
+
+                                    <div ng-messages="$ctrl.form.tagGroupTags.$error">
+                                        <div ng-message="required" ma-tr="validate.required"></div>
+                                    </div>
+                                </md-input-container>
+                              
+                            </div>
+                        </div>
+                        <div layout layout-align="center">
+                            <md-button class="md-primary" ng-click="$ctrl.selected.tagGroups.push({})">
+                                <md-icon>add</md-icon> <span ma-tr="common.add"></span>
+                            </md-button>
+                        </div>
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="overview.settings.files"></span></md-tab-label>
+                    <md-tab-body>
+
+                        <div class="md-padding" layout="column" layout flex="100" flex-gt-md="45" layout-wrap>
+                            <md-input-container flex="100" class="ma-input-space-between">
+                                <label ma-tr="overview.settings.fileGroupTitle"></label>
+                                <input name="fileGroupTitle" ng-model="fileGroupTitle">
+                                <md-icon class="md-primary" 
+                                    ng-click="fileGroupTitle && ($ctrl.selected.files.push({ title: fileGroupTitle, fileStorePaths: [{type:'static'}] }) &&
+                                    (fileGroupTitle = '')  ||
+                                    ($ctrl.fileIndex = $ctrl.selected.files.length - 1));">add</md-icon>
+                            </md-input-container>
+                            <wi-reorder model="$ctrl.selected.files" prop="title"></wi-reorder>
+                        </div>
+
+                        <md-tabs ng-if="$ctrl.selected.files.length" class="md-primary md-hue-1" md-dynamic-height md-selected="$ctrl.fileIndex">
+                            <md-tab ng-repeat="fileSetting in $ctrl.selected.files">
+                                <md-tab-label><span ng-bind="fileSetting.title"></span></md-tab-label>
+                                <md-tab-body>
+                                    <div class="md-padding" layout layout-align="space-between center" layout-wrap>
+
+                                        <div layout layout-align="space-between center" flex="100" flex-gt-md="45">
+                                            <md-input-container flex="100" class="ma-input-space-between">
+                                                <label ma-tr="overview.settings.fileGroupTitle"></label>
+                                                <input name="fileGroupTitle" ng-model="fileSetting.title" required>
+                                                <div ng-messages="$ctrl.form.fileGroupTitle.$error">
+                                                    <div ng-message="required" ma-tr="validate.required"></div>
+                                                </div>
+                                            </md-input-container>
+                                            <md-icon class="md-warn" ng-click="$ctrl.selected.files.splice($index, 1)">delete</md-icon>
+                                        </div>
+
+                                        <div flex="100" flex-gt-md="45" layout layout-align="start center" class="ma-input-space-between">
+                                            <span><strong>/default/</strong></span>
+                                            <div ng-repeat="path in fileSetting.fileStorePaths">
+                                                <span ng-if="path.type == 'static'"><strong>{{ path.value }}</strong>/</span>
+                                                <span ng-if="path.type == 'tag'" ><strong>{{'{' + path.value + '}'}}</strong>/</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div ma-sortable="{draggable: '.move-draggable', handle: '.ma-move-handle'}" ma-sortable-items="fileSetting.fileStorePaths">
+                                        <div class="md-padding move-draggable" layout layout-align="space-between center" layout-wrap ng-repeat="path in fileSetting.fileStorePaths">
+
+                                            <div layout layout-align="space-between center" flex="100" flex-gt-md="45">
+                                                <md-icon class="md-accent ma-move-handle">reorder</md-icon>
+                                                <md-input-container flex="100" class="ma-input-space-between">
+                                                    <label ma-tr="overview.settings.pathType"></label>
+                                                    <md-select name="pathType" ng-model="path.type" required>
+                                                        <md-option ng-value="'static'">
+                                                            <span ma-tr="overview.settings.pathType.static"></span>
+                                                        </md-option>
+                                                       <md-option ng-value="'tag'">
+                                                            <span ma-tr="overview.settings.pathType.tag"></span>
+                                                        </md-option>
+                                                    </md-select>
+                                                    <div ng-messages="$ctrl.form.pathType.$error">
+                                                        <div ng-message="required" ma-tr="validate.required"></div>
+                                                    </div>
+                                                </md-input-container>
+                                                <md-icon ng-click="fileSetting.fileStorePaths.splice($index, 1)">delete</md-icon>
+                                            </div>
+
+                                            <md-input-container ng-if="path.type=='static'" flex="100" flex-gt-md="45" class="ma-input-space-between">
+                                                <label ma-tr="overview.settings.pathValue"></label>
+                                                <input name="pathValue" ng-model="path.value" required>
+                                                <div ng-messages="$ctrl.form.pathValue.$error">
+                                                    <div ng-message="required" ma-tr="validate.required"></div>
+                                                </div>
+                                            </md-input-container>
+
+                                            <md-input-container ng-if="path.type=='tag'" flex="100" flex-gt-md="45" class="ma-input-space-between">
+                                                <label ma-tr="overview.settings.pathValue"></label>
+                                                <md-select name="pathValue" ng-model="path.value" required>
+                                                    <md-option ng-repeat="tag in $ctrl.tags" ng-value="tag">
+                                                        <span ng-bind="tag"></span>
+                                                    </md-option>
+                                                </md-select>
+                                                <div ng-messages="$ctrl.form.pathValue.$error">
+                                                    <div ng-message="required" ma-tr="validate.required"></div>
+                                                </div>
+                                            </md-input-container>
+                                        </div>
+                                    </div>
+
+                                    <div layout layout-align="center">
+                                        <md-button class="md-primary" ng-click="fileSetting.fileStorePaths.push({type:'static'})">
+                                            <md-icon>add</md-icon> <span ma-tr="common.add"></span>
+                                        </md-button>
+                                    </div>
+                                </md-tab-body>
+                            </md-tab>
+                        </md-tabs>
+
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="overview.settings.graphic"></span></md-tab-label>
+                    <md-tab-body>
+                        <div layout layout-wrap md-colors="{'background': 'background-hue-2'}">
+                            <md-card flex="100" flex-gt-md="45" >
+                                <md-toolbar class="md-hue-3">
+                                    <div class="md-toolbar-tools">
+                                        <span ma-tr="ui.components.selectTagValue" ma-tr-args="[$ctrl.selected.key]"></span>
+                                    </div>
+                                </md-toolbar>
+                                <md-list>
+                                    <md-list-item
+                                        ng-repeat="value in $ctrl.graphValues"
+                                        md-colors="{'background': $ctrl.graphValue === value ? 'accent-hue-1' : 'background-hue-1'}"
+                                        ng-click="$ctrl.graphValue = value; $ctrl.selected.graphs[$ctrl.graphValue] = $ctrl.selected.graphs[$ctrl.graphValue] || [];">
+                                        <span ng-bind="value + ' (' + ($ctrl.selected.graphs[value].length || 0)+ ')'"></span>
+                                    </md-list-item>
+                                </md-list>
+                                <md-card-content ng-if="!$ctrl.graphValues.length">
+                                    <span ma-tr="ui.components.noItemsToList"></span>
+                                </md-card-content>
+                            </md-card>
+                            <md-card flex ng-if="$ctrl.graphValues && $ctrl.graphValue">
+                                <div ma-sortable="{draggable: '.move-draggable', handle: '.ma-move-handle'}" ma-sortable-items="$ctrl.selected.graphs[$ctrl.graphValue]">
+                                   <div class="md-padding move-draggable" layout layout-align="space-between start" layout-wrap
+                                        ng-repeat="graph in $ctrl.selected.graphs[$ctrl.graphValue]">
+                                        <div layout layout-align="space-between center" flex="100">
+                                            <md-icon class="md-accent ma-move-handle">reorder</md-icon>
+                                            <md-input-container flex="100" class="ma-input-space-between">
+                                                <label ma-tr="overview.settings.graphicTitle"></label>
+                                                <input name="graphTitle" ng-model="graph.title" required>
+                                                <div ng-messages="$ctrl.form.graphTitle.$error">
+                                                    <div ng-message="required" ma-tr="validate.required"></div>
+                                                </div>
+                                            </md-input-container>
+                                            <md-icon class="md-warn ma-move-handle" ng-click="$ctrl.selected.graphs[$ctrl.graphValue].splice($index, 1)">delete</md-icon>
+                                        </div>
+                                        <div layout layout-align="space-between center" flex="100">
+                                            <md-input-container flex="100" class="ma-input-space-between">
+                                                <label ma-tr="common.type"></label>
+                                                <md-select flex ng-model="graph.type">
+                                                    <md-option ng-value="undefined" ma-tr="dashboardDesigner.menuText"></md-option>
+                                                    <md-option ng-value="'graphView'" ma-tr="graphView.title"></md-option>
+                                                </md-select>
+                                            </md-input-container>
+                                        </div>
+
+                                        <div layout layout-align="space-between center" flex="100" ng-if="!graph.type">
+                                            <md-input-container flex="100" class="ma-input-space-between">
+                                                <label ma-tr="ui.app.linkCustomPage"></label>
+                                                <md-select flex ng-model="graph.xid" required>
+                                                    <md-option ng-repeat="page in pageStore.pages" ng-value="page.xid">
+                                                        <span ng-bind="page.name"></span>
+                                                    </md-option>
+                                                </md-select>
+                                                <div ng-messages="$ctrl.form.pageXid.$error">
+                                                    <div ng-message="required" ma-tr="validate.required"></div>
+                                                </div>
+                                            </md-input-container>
+                                        </div>
+
+                                        <!--todo check graphView module existance && select from dropdown-->
+                                        <div layout layout-align="space-between center" flex="100" ng-if="graph.type == 'graphView'">
+                                            <md-input-container flex="100" class="ma-input-space-between">
+                                                <label ma-tr="ui.app.linkCustomPage"></label>
+                                                <input name="graphViewXid" ng-model="graph.xid" required>
+                                                <div ng-messages="$ctrl.form.pageXid.$error">
+                                                    <div ng-message="required" ma-tr="validate.required"></div>
+                                                </div>
+                                            </md-input-container>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div layout layout-align="center">
+                                    <md-button class="md-primary" ng-click="$ctrl.selected.graphs[$ctrl.graphValue].push({title:''})">
+                                        <md-icon>add</md-icon> <span ma-tr="common.add"></span>
+                                    </md-button>
+                                </div>
+                            </md-card>
+                        </div>
+                    </md-tab-body>
+                </md-tab>
+            </md-tabs>
+        </md-card>
+    </div>
+</div>
+
+<md-card ng-if="$ctrl.preview">
+	 <md-toolbar class="md-hue-3">
+         <div class="md-toolbar-tools" layout-align="space-between center">
+         	<span ma-tr="ui.app.preview"></span>
+        </div>
+    </md-toolbar>
+	<wi-overview></wi-overview>
+</md-card>

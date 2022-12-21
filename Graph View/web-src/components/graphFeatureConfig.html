@@ -1,0 +1,191 @@
+<ma-json-store xid="mangoUI-pages" value="pageStore"></ma-json-store>
+<div class="md-padding" ng-init="layer = $parent.layer; context = $parent.context;">
+
+	<md-toolbar layout style="width: auto; margin: -35px -35px 10px -35px;"
+		class="md-hue-2"
+		md-colors="
+			{	
+				background: 
+					(layer.config.displayType == 'point'  && 'primary') || 
+					(layer.config.displayType == 'events' && 'accent') || 
+					(layer.config.displayType == 'link' && 'warn') ||
+					(layer.config.type == 'circlemarker' && layer.config.data.heatMapIndex == 0 && 'primary') ||
+					(layer.config.type == 'circlemarker' && layer.config.data.heatMapIndex == 1 && 'accent') ||
+					(layer.config.type == 'circlemarker' && layer.config.data.heatMapIndex == 2 && 'warn') ||
+					'background-hue-2'
+			}">
+		<md-button class="md-icon-button" style="margin:0; padding: 0;" ng-click="layer.bringToFront()">
+			<md-icon>flip_to_front</md-icon>
+			<md-tooltip ma-tr="dashboardDesigner.moveForward"></md-tooltip>
+		</md-button>
+
+		<md-button class="md-icon-button" style="margin:0; padding: 0;" ng-click="layer.bringToBack()">
+			<md-icon>flip_to_back</md-icon>
+			<md-tooltip ma-tr="dashboardDesigner.moveBackward"></md-tooltip>
+		</md-button>
+		<span flex></span>
+		<md-button class="md-icon-button" style="margin:0; padding: 0;" ng-click="layer.closePopup()">
+			<md-icon>clear</md-icon>
+			<md-tooltip ma-tr="common.close"></md-tooltip>
+		</md-button>
+	</md-toolbar>
+
+	<div layout layout-align="center center" ng-if="layer.config.type == 'marker'">
+		<md-input-container>
+		    <label>Icon</label>
+		    <input ng-model="layer.config.icon" ng-change="$ctrl.updateIcon()" ng-model-options="{debounce: 500}"></input>
+		</md-input-container>	
+	</div>
+
+	<div ng-if="layer.config.type != 'circlemarker'">
+		<div layout layout-align="space-between end">
+			<md-radio-group ng-model="layer.config.displayType" ng-change="$ctrl.displayTypeChanged()">
+			  	<md-radio-button value="point" class="md-primary" >
+					<span ma-tr="ui.app.point"></span>
+			  	</md-radio-button>
+			  	<md-radio-button value="events" class="md-accent">
+					<span ma-tr="ui.app.events"></span>
+			  	</md-radio-button>
+			  	<md-radio-button value="link" class="md-warn">
+					<span ma-tr="ui.app.linkCustomPage"></span>
+			  	</md-radio-button>
+			  	<md-radio-button value="href" class="md-warn">
+					<span ma-tr="ui.app.href"></span>
+			  	</md-radio-button>
+			</md-radio-group>
+			<md-switch class="wi-switch-label"
+				ng-if="layer.config.displayType == 'events' || layer.config.displayType == 'link' || layer.config.displayType == 'href'"
+				ng-class="layer.config.displayType == 'events' ? 'md-accent' : 'md-warn'"
+				ng-style="{'margin-bottom': layer.config.displayType == 'events' ? '38px' : '4px'}"
+	      		ng-model="layer.config.data.permanent" 
+	      		ng-change="$ctrl.permanentChanged()"
+	      		ma-tr="graphView.editor.permanent">
+	     	</md-switch>
+		</div>
+
+		<div style="margin-top: 15px;" ng-if="layer.config.displayType">
+			<div ng-if="layer.config.displayType == 'point'">
+				<ma-filtering-point-list flex required="true"
+					ng-init="pointXid = layer.config.data.pointXid"
+					ng-model="point" 
+					ng-change="$ctrl.pointChanged(point)"
+					point-xid="{{pointXid}}" 
+					types="['MULTISTATE', 'BINARY']">
+				</ma-filtering-point-list>
+				<div ng-if="point" layout flex>
+					<md-input-container flex>
+					    <label ma-tr="graphView.editor.hiddenValue"></label>
+					    <input flex type="number" min="0" ng-model="layer.config.data.hideValue" ng-change="$ctrl.hideValueChanged()"></input>
+					</md-input-container>
+				</div>
+			</div>
+
+			<div ng-if="layer.config.displayType == 'events'">
+				<div class="md-padding">
+					<md-radio-group layout layout-align="center" ng-model="layer.config.data.eventType" ng-change="$ctrl.eventTypeChanged();" >
+					  	<md-radio-button value="point" class="md-primary" >
+							<span ma-tr="ui.app.point"></span>
+					  	</md-radio-button>
+					  	<md-radio-button value="device" class="md-accent">
+							<span ma-tr="ui.app.device"></span>
+					  	</md-radio-button>
+					  	<md-radio-button value="rql" class="md-warn">
+							<span ma-tr="ui.app.rql"></span>
+					  	</md-radio-button>
+					</md-radio-group>
+				</div>
+
+				<div ng-if="layer.config.data.eventType == 'point'" ng-init="$ctrl.eventPoint = undefined">
+					<ma-filtering-point-list flex required="true"
+						ng-init="pointXid = layer.config.data.eventData.pointXid"
+						ng-model="$ctrl.eventPoint"
+						ng-change="$ctrl.eventPointChanged($ctrl.eventPoint);" 
+						point-xid="{{pointXid}}">
+					</ma-filtering-point-list>
+					<div layout ng-if="layer.config.data.eventData.pointXid && $ctrl.eventPoint">
+						<md-input-container flex>
+						    <label ma-tr="ui.eventDetectors.select"></label>
+						    <md-select ng-model="layer.config.data.eventData.detectorXid" ng-change="$ctrl.detetorChanged()">
+				    			<md-option ng-value="undefined" md-option-empty>
+				    				<md-icon>clear</md-icon> <em ma-tr="ui.app.any"></em>
+				    			</md-option>
+						        <md-option ng-repeat="eventDetector in $ctrl.detectors | orderBy:'name' track by eventDetector.xid" ng-value="eventDetector.xid">
+						            <span ng-bind="eventDetector.description || eventDetector.name || eventDetector.xid"></span>
+						        </md-option>
+						    </md-select>
+						</md-input-container>
+						<ma-event-detector-select
+							ng-if="layer.config.data.eventData.pointXid && $ctrl.eventPoint"
+							ng-init="$ctrl.detectors = []"
+							ng-hide="true"
+							point="$ctrl.eventPoint" 
+							ng-model="detector" 
+							on-query="$ctrl.detectors = $items">
+						</ma-event-detector-select>
+					</div>
+				</div>
+
+				<div ng-if="layer.config.data.eventType == 'device'">
+					<ma-filtering-device-name-list required="true" ng-model="layer.config.data.eventData.deviceName" label-text="'ui.app.device' | maTr">
+					</ma-filtering-device-name-list>
+				</div>
+
+				<div flex ng-if="layer.config.data.eventType == 'rql'" layout="column" layout-align="center">
+					<md-input-container flex>
+					    <label ma-tr="ui.app.description"></label>
+					    <input required="true" ng-model="layer.config.data.eventData.title"></input>
+					</md-input-container>	
+					<md-input-container flex>
+					    <label ma-tr="ui.app.rql"></label>
+					    <input required="true" ng-model="layer.config.data.eventData.rql"></input>
+					</md-input-container>	
+				</div>
+
+			</div>
+
+			<div ng-if="layer.config.displayType == 'link'">
+				<ma-data-point-tag-key-select ng-model="layer.config.data.key" ng-change="$ctrl.tagKeyChanged();" exclude-tags="['device', 'name']">
+				</ma-data-point-tag-key-select>
+				<ma-data-point-tag-select style="width: 100%;" ng-if="layer.config.data.key" 
+					ng-model="layer.config.data.value" 
+					key="{{layer.config.data.key}}" 
+					show-any-option="false">
+				</ma-data-point-tag-select>
+			</div>
+			
+			
+			<div ng-if="layer.config.displayType == 'href'">
+				 <div layout layout-align="space-between center" flex="100">
+                                            <md-input-container flex="100" class="ma-input-space-between">
+                                                <label ma-tr="ui.app.linkCustomPage"></label>
+                                                <md-select flex ng-model="layer.config.data.href" required>
+                                                    <md-option ng-repeat="page in pageStore.pages" ng-value="page.xid">
+                                                        <span ng-bind="page.name"></span>
+                                                    </md-option>
+                                                </md-select>
+                                               
+                                            </md-input-container>
+                                        </div>
+			</div> 
+		</div>
+	</div>
+
+	<div flex ng-if="layer.config.type == 'circlemarker'" layout="column" layout-align="center">
+		<ma-filtering-point-list flex required="true"
+			ng-model="point" 
+			ng-change="layer.config.data.pointXid = point.xid" 
+			point-xid="{{layer.config.data.pointXid}}">
+		</ma-filtering-point-list>
+	    <md-input-container>
+	        <label>Display type</label>
+	        <md-select ng-model="layer.config.data.heatMapIndex" ng-change="$ctrl.updateHeatMap()">
+    			<md-option ng-value="undefined" md-option-empty>
+    				<md-icon>clear</md-icon> <em ma-tr="common.none"></em>
+    			</md-option>
+	           	<md-option ng-repeat="heatMap in context.heatMap" ng-value="$index">
+                	<span ng-bind="heatMap.title"></span>
+                </md-option>
+	        </md-select>
+	    </md-input-container>
+	</div>
+</div>

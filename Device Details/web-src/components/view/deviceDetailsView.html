@@ -1,0 +1,205 @@
+<style>
+    md-autocomplete button md-icon path {
+        fill: var(--ma-accent) !important;
+    }
+</style>
+
+<ma-json-store xid="deviceDetails-settings" item="storeItem" value="setting"></ma-json-store>
+
+<md-card-content ng-if="!$ctrl.devices.length">
+    <span ma-tr="ui.components.noItemsToList"></span>
+</md-card-content>
+<div ng-if="!$ctrl.dialog && $ctrl.devices.length" ng-init="$ctrl.device = $ctrl.devices[0]"
+    layout layout-align="center center" style="height: 80px;">
+    <md-button class="md-icon-button md-raised md-primary md-hue-2" ng-if="true"
+        ng-disabled="$ctrl.devices.indexOf($ctrl.device) <= 0" 
+        ng-click="$ctrl.device = $ctrl.devices[$ctrl.devices.indexOf($ctrl.device) - 1]">
+        <md-tooltip><span ma-tr="pagination.previous"></span> <span ma-tr="ui.app.device"></span></md-tooltip>
+        <md-icon>arrow_back</md-icon>
+    </md-button>
+    <div layout layout-align="space-between center" flex="50" flex-gt-md="30" style="margin-top: 10px;">
+         <md-autocomplete flex
+            class="md-accent"
+            md-selected-item="$ctrl.device"
+            md-items="item in $ctrl.devices | filter : searchText"
+            md-selected-item-changed="!$ctrl.filter"
+            md-search-text="searchText"
+            md-item-text="item"
+            md-no-cache="true"
+            md-min-length="0"
+            md-floating-label="{{ ('ui.app.devices' | maTr) +': '+ ($ctrl.devices.indexOf($ctrl.device) + 1) + ' / ' + $ctrl.devices.length}}"
+            md-select-on-match="true"
+            md-escape-options="blur"
+            md-clear-button="true">
+            <md-item-template>
+                <span md-highlight-text="searchText" md-highlight-flags="gi">{{item}}</span>
+            </md-item-template>
+            <md-not-found>
+              <span ma-tr="ui.app.notFound"></span>
+            </md-not-found>
+        </md-autocomplete>
+        <wi-active-events ng-if="$ctrl.device" ng-click="$ctrl.tabIndex = 2" points="points"></wi-active-events>
+    </div>
+    <md-button class="md-icon-button md-raised md-primary md-hue-2" ng-if="true"
+        ng-disabled="$ctrl.devices.length <= $ctrl.devices.indexOf($ctrl.device) + 1" 
+        ng-click="$ctrl.device = $ctrl.devices[$ctrl.devices.indexOf($ctrl.device) + 1]">
+        <md-tooltip><span ma-tr="pagination.next"></span> <span ma-tr="ui.app.device"></span></md-tooltip>
+        <md-icon>arrow_forward</md-icon>
+    </md-button>
+</div>
+
+<md-tabs class="md-primary" md-dynamic-height md-selected="$ctrl.tabIndex" ng-if="$ctrl.device && storeItem && (setting | wiNumKey) > 0">
+    <md-tab>
+        <md-tab-label><span ma-tr="deviceDetails.settings.graphic"></span></md-tab-label>
+        <md-tab-body>
+            <md-nav-bar md-no-ink-bar="true" ng-if="setting.graphics[$ctrl.device].length"
+                class="md-primary md-hue-2" md-selected-nav-item="$ctrl.graphIndex" md-dynamic-height>
+                <md-nav-item 
+                    ng-class="$ctrl.graphIndex == $index && 'wi-nav-bar-selected'"
+                    ng-repeat="graphic in setting.graphics[$ctrl.device]" 
+                    name="{{$index}}" md-nav-click="$ctrl.graphIndex = $index">
+                    {{graphic.title}}
+                </md-nav-item>
+            </md-nav-bar>
+            <md-card-content ng-repeat="graphic in setting.graphics[$ctrl.device]" 
+                ng-if="$ctrl.tabIndex == 0 && $ctrl.graphIndex == $index">
+                <wi-device-view ng-if="graphic.type != 'static'" 
+                    points="graphic.points" 
+                    name="graphic.type" 
+                    binding-tag="setting.bindingTag"> 
+                </wi-device-view>
+                <ma-ui-page-view flex layout="column"
+                    ng-if="graphic.type == 'static'" 
+                    xid="{{graphic.xid}}">
+                </ma-ui-page-view>
+            </md-card-content>
+            <md-card-content ng-if="!setting.graphics[$ctrl.device].length">
+                <span ma-tr="ui.components.noItemsToList"></span>
+            </md-card-content>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label><span ma-tr="common.points"></span></md-tab-label>
+        <md-tab-body>
+            <wi-point-list-table
+                ng-if="$ctrl.tabIndex == 1"
+                overview-setting="$ctrl.overviewSetting"
+                query="'eq(deviceName,' + $ctrl.device + ')'"
+                columns="setting.defaultColumns" 
+                sort="setting.defaultSort"> 
+            </wi-point-list-table>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label><span ma-tr="ui.app.events"></span></md-tab-label>
+        <md-tab-body>
+            <div ng-init="acknowledged='any'; activeStatus='any'; alarmLevel='any'"></div>
+            <md-tabs ng-if="$ctrl.tabIndex == 2" md-dynamic-height class="md-primary md-hue-2" md-selected="$ctrl.eventIndex">
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.eventsTable"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-event-table 
+                            ng-if="$ctrl.eventIndex == 0"
+                            alarm-level="alarmLevel"
+                            acknowledged="acknowledged"
+                            active-status="activeStatus"
+                            points="points">
+                        </wi-event-table>
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.timePeriods"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-event-time-line 
+                            ng-if="$ctrl.eventIndex == 1"
+                            overview-setting="$ctrl.overviewSetting"
+                            alarm-level="alarmLevel"
+                            acknowledged="acknowledged"
+                            active-status="activeStatus"
+                            points="points">
+                        </wi-event-time-line>
+                    </md-tab-body>
+                </md-tab>
+            </md-tabs>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label><span ma-tr="ui.app.history"></span></md-tab-label>
+        <md-tab-body>
+             <md-tabs ng-if="$ctrl.tabIndex == 3" md-dynamic-height class="md-primary md-hue-2" md-selected="$ctrl.historyIndex">
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.userComments"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-note-table ng-if="$ctrl.historyIndex == 0" points="points"></wi-note-table>
+                    </md-tab-body>
+                </md-tab>
+                <md-tab>
+                    <md-tab-label><span ma-tr="ui.app.values"></span></md-tab-label>
+                    <md-tab-body>
+                        <wi-history-table ng-if="$ctrl.historyIndex == 1" points="points"></wi-history-table>
+                    </md-tab-body>
+                </md-tab>
+            </md-tabs>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label><span ma-tr="common.alarmLevel.info"></span></md-tab-label>
+        <md-tab-body>
+            <div ng-if="$ctrl.tabIndex == 4">
+                <div ng-repeat="tagGroup in setting.tagGroups">
+                    <md-toolbar class="md-hue-2">
+                        <div class="md-toolbar-tools">
+                            <span ng-bind="tagGroup.title"></span>
+                        </div>
+                    </md-toolbar>
+                    <md-card-content>
+                        <span layout ng-repeat="tag in tagGroup.tags">
+                            <span flex-gt-md="15" flex="30" ng-bind="tag"></span>
+                            <span ng-if="($ctrl.overviewSetting.tags | filter: {key:tag} | maFirst)">
+                                <a class="wi-no-underline"
+                                    ng-class="{'md-primary': tag == $root.$state.params.key}"
+                                    ng-click="$root.navigate(tag, $ctrl.firstPoint.tags[tag])"
+                                    ng-bind="$ctrl.firstPoint.tags[tag]"></a>
+                            </span>
+                            <span ng-if="!($ctrl.overviewSetting.tags | filter: {key:tag} | maFirst)" ng-bind="$ctrl.firstPoint.tags[tag]"></span>
+                        </span>
+                    </md-card-content>
+                </div>
+            </div>
+            <md-card-content ng-if="!setting.tagGroups.length">
+                <span ma-tr="ui.components.noItemsToList"></span>
+            </md-card-content>
+        </md-tab-body>
+    </md-tab>
+    <md-tab>
+        <md-tab-label><span ma-tr="deviceDetails.settings.files"></span></md-tab-label>
+        <md-tab-body>
+            <div ng-if="$ctrl.tabIndex == 5" ng-init="$ctrl.getFiles()">
+                <div ng-repeat="fileSetting in setting.files">
+                    <md-toolbar class="md-hue-2">
+                        <div class="md-toolbar-tools">
+                            <span ng-bind="fileSetting.title"></span>
+                        </div>
+                    </md-toolbar>
+                    <md-card-content>
+                        <div layout layout-align="none center" ng-repeat="file in fileSetting.files">
+                            <md-button class="md-button md-icon-button md-primary" href="{{file.url}}">
+                                <md-icon>file_download</md-icon>
+                            </md-button>
+                            <a class="wi-no-underline" href="{{file.url}}" ng-bind="file.filename">
+                                <md-tooltip md-direction="right" ma-tr="common.download"></md-tooltip>
+                            </a>
+                        </div>
+                    </md-card-content>
+                </div>
+            </div>
+            <md-card-content ng-if="!setting.files.length">
+                <span ma-tr="ui.components.noItemsToList"></span>
+            </md-card-content>
+        </md-tab-body>
+    </md-tab>
+</md-tabs>
+<md-card-content ng-if="storeItem && (setting | wiNumKey) == 0">
+    <span ma-tr="ui.app.configure"></span>
+    <a href="/ui/administration/device-details" ma-tr="deviceDetails.settings"></a>
+</md-card-content>

@@ -1,0 +1,86 @@
+.ma-stats-dialog {
+    width: 100%;
+    height: 100%;
+}
+
+.ma-stats-dialog md-content {
+	background-color: transparent;
+}
+
+md-dialog md-toolbar {
+/* 	max-height: 48px !important; */
+/* 	min-height: 48px !important; */
+/*  height: 48px !important;  */
+}
+
+md-dialog md-toolbar h2 {
+    font-size: 1.7rem!important;
+}
+
+wi-point-list-table ma-point-value > md-fab-speed-dial {
+	top: -6px!important;
+}
+
+wi-detector-list-table ma-point-value > md-fab-speed-dial {
+	top: -6px!important;
+}
+
+.wi-tag-hierarchy-container {
+  overflow-:auto; 
+  overflow-y:hidden;
+}
+
+.b-float-root {
+	z-index: 81 !important;
+}
+
+.wi-table-button ma-badge {
+	left: unset !important;
+	right: 0 !important;
+	bottom: 0 !important;
+}
+
+.wi-table-button {
+  border-radius: 0 !important;
+  padding: 2px !important;
+  margin: 2px !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+}
+
+.wi-table-button md-icon {
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 20px !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+}
+
+wi-active-events-display {
+  white-space: nowrap;
+}
+
+wi-active-events-display .md-button {
+  margin: 0 !important;
+  padding: 0 !important;
+  margin-right: 10px!important;
+  height: 20px !important;
+  width: 24px !important;
+  max-height: 20px!important;
+  min-height: 20px!important;
+  margin-top: -5px!important;
+}
+
+wi-active-events-display .material-icons{
+  font-size: 22px!important;
+}
+
+wi-active-events-display ma-badge {
+  left: 18px;
+  bottom: -3px;
+  z-index: 2;
+}

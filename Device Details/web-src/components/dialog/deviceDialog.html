@@ -1,0 +1,28 @@
+<ma-dialog 
+    show-dialog="$ctrl.$state.params.device" 
+    on-hide="$ctrl.$state.params.device = undefined; $ctrl.$state.params.tabIndex = undefined;" 
+    on-cancel="$ctrl.$state.params.device = undefined; $ctrl.$state.params.tabIndex = undefined;">
+    <md-dialog flex class="wi-device-view-dialog">
+        <md-toolbar class="md-accent md-hue-3">
+            <div class="md-toolbar-tools">
+                <span>
+                    <span ma-tr="ui.app.device"></span>: <span ng-bind="$ctrl.$state.params.device"></span>
+                </span>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="$dialog.cancel()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content flex layout="column">
+            <wi-device-details-view 
+                ng-if="$ctrl.$state.params.device"
+                tab-index="$ctrl.$state.params.tabIndex"
+                dialog="true"
+                device="$ctrl.$state.params.device"
+                devices="[$ctrl.$state.params.device]">
+            </wi-device-details-view>
+        </md-dialog-content>
+    </md-dialog>
+</ma-dialog>

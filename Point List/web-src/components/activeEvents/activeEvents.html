@@ -1,0 +1,18 @@
+<wi-event-query ng-if="$ctrl.pointQuery"
+    skip-query="true"
+    point-query="$ctrl.pointQuery"
+    events="$ctrl.data"
+    promise="$ctrl.promise">
+</wi-event-query>
+
+<wi-active-events-display 
+    ng-if="!$ctrl.hide"
+    point-query="$ctrl.pointQuery"
+    active-events="$ctrl.activeEvents"
+    promise="$ctrl.promise"
+
+    disable-device-link="$ctrl.disableDeviceLink"
+    popup-title="$ctrl.popupTitle"
+    icon="{{$ctrl.icon}}"
+    show-single-event="$ctrl.showSingleEvent">
+</wi-active-events-display>

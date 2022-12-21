@@ -1,0 +1,264 @@
+<div layout layout-align="space-between center" layout-wrap class="md-padding">
+    <div layout>
+        <md-switch ng-model="nonNumeric" ma-tr="" ng-change="nonNumeric && (moreOptions=false)">
+            <span ma-tr="pointList.stats.nonNumeric"></span>
+        </md-switch>  
+        <md-switch ng-disabled="nonNumeric" ng-model="moreOptions">
+            <span ma-tr="ui.app.moreOptions"></span>
+        </md-switch>
+    </div>
+    <span>
+        <span 
+            ma-tr="{{ dateBar.preset && ($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translation || 'ui.app.dateRangePreset'}}" 
+            ma-tr-args="($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translationArgs"></span> 
+
+            <span ng-if="(selectedStats | filter:{chartTooltip: true}).length">
+                (<span ma-tr="{{($root.rollupTypes | filter:{type: dateBar.rollupType} | maFirst:true).translation}}"></span>)
+            </span>
+    </span>
+    <div layout>
+        <md-switch class="wi-switch-label md-primary" ng-model="showEvents" ma-tr="ui.app.events"></md-switch>
+        <md-switch class="wi-switch-label md-primary" ng-model="showNotes" ma-tr="notes.note"></md-switch>
+    </div>
+</div>
+
+<md-table-container>
+    <table md-table>
+        <thead md-head md-order="tableOrder">
+            <tr md-row ma-fix-sort-icons>
+                <th md-column md-order-by="formatLabel()" ma-tr="ui.app.dataPoint"></th>
+                <th md-column md-numeric md-order-by="stats.delta.value" ng-if="moreOptions && !nonNumeric">
+                    <a class="md-accent wi-no-underline" ma-tr="common.rollup.delta"></a>
+                </th>
+                <th md-column md-numeric md-order-by="stats.accumulator.value" ng-if="moreOptions && !nonNumeric">
+                    <a class="md-accent wi-no-underline" ma-tr="common.rollup.accumulator"></a>
+                </th>
+                <th md-column md-numeric md-order-by="stats.integral.value" ng-if="moreOptions && !nonNumeric">
+                    <a class="md-accent wi-no-underline" ma-tr="common.rollup.integral"></a>
+                </th>
+                <th md-column md-numeric md-order-by="stats.sum.value" ng-if="moreOptions && !nonNumeric">
+                    <a class="md-accent wi-no-underline" ma-tr="ui.app.sum"></a>
+                </th>
+                <th md-column md-numeric md-order-by="stats.events.value" ng-if="showEvents">
+                    <md-icon md-colors="{color: 'primary'}"
+                        style="margin: 0 -5px 0 -10px; width: 24px !important; height: 24px !important; font-size: 24px !important; line-height: 1 !important;">
+                        alarms
+                        <md-tooltip ma-tr="ui.app.events"></md-tooltip>
+                    </md-icon>
+                </th>
+                <th md-column md-numeric md-order-by="stats.notes.value" ng-if="showNotes">
+                    <md-icon md-colors="{color: 'primary'}"
+                        style="margin: 0 -5px 0 -10px; width: 24px !important; height: 24px !important; font-size: 24px !important; line-height: 1 !important;">
+                        speaker_notes
+                        <md-tooltip ma-tr="notes.note"></md-tooltip>
+                    </md-icon>
+                </th>
+                <th md-column md-numeric md-order-by="stats.start.value" ma-tr="common.rollup.start"></th>
+                <th md-column md-numeric md-order-by="stats.average.value" ma-tr="ui.app.avg" ng-if="!nonNumeric"></th>
+                <th md-column md-numeric md-order-by="stats.maximum.value" ma-tr="ui.app.max" ng-if="!nonNumeric"></th>
+                <th md-column md-numeric md-order-by="stats.minimum.value" ma-tr="ui.app.min" ng-if="!nonNumeric"></th>
+                <th md-column md-numeric md-order-by="stats.first.value" ma-tr="ui.app.first"></th>
+                <th md-column md-numeric md-order-by="stats.last.value" ma-tr="ui.app.last"></th>
+                <th md-column md-numeric md-order-by="stats.count.value" ma-tr="ui.app.count"></th>
+                <th md-column md-numeric md-order-by="stats.startsAndRuntimes" ma-tr="common.stats.runtime"></th>
+            </tr>
+        </thead>
+        <tbody md-body ng-init="tableOrder='deviceName'">
+            <tr md-row ng-repeat="point in selectedStats | limitTo:query.limit:(query.page -1)*query.limit | orderBy: tableOrder track by point.xid">
+                <td md-cell>
+                    <span style="white-space: nowrap;">
+                        <md-icon class="wi-no-focus md-warn" ng-click="$ctrl.removePoint(point)">clear</md-icon>
+                        <md-icon class="wi-no-focus" ng-click="$ctrl.addNote($event, point)" ng-class="{'md-primary' : point.noteTooltip}">
+                            speaker_notes
+                            <md-tooltip md-visible="point.noteTooltip" md-direction="right" ma-tr="notes.addNote"></md-tooltip>
+                        </md-icon>
+                        <a class="wi-no-underline" ng-click="$root.popupPoint($event, point, 'stats')" ng-bind="point.formatLabel()"></a>
+                    </span>
+                </td>
+                <td md-cell ng-if="moreOptions && !nonNumeric">
+                    <span ng-bind="point.stats.delta.rendered || '\u2014'" ng-click="$ctrl.pieVal(point, point.stats.delta, 'common.rollup.delta')"></span>
+                </td>
+                <td md-cell ng-if="moreOptions && !nonNumeric">
+                    <span ng-bind="point.stats.accumulator.rendered || '\u2014'" ng-click="$ctrl.pieVal(point, point.stats.accumulator, 'common.rollup.accumulator')"></span>
+                </td>
+                <td md-cell ng-if="moreOptions && !nonNumeric">
+                    <span ng-bind="point.stats.integral.rendered || '\u2014'"  ng-click="$ctrl.pieVal(point, point.stats.integral, 'common.rollup.integral')"></span>
+                </td>
+                <td md-cell ng-if="moreOptions && !nonNumeric">
+                    <span ng-bind="point.stats.sum.rendered || '\u2014'"  ng-click="$ctrl.pieVal(point, point.stats.sum, 'ui.app.sum')"></span>
+                </td>
+                <td md-cell ng-if="showEvents">
+                    <span ng-bind="point.stats.events.rendered"  ng-click="$ctrl.pieVal(point, point.stats.events, 'ui.app.events')"></span>
+                </td>
+                <td md-cell ng-if="showNotes">
+                    <span ng-bind="point.stats.notes.rendered"  ng-click="$ctrl.pieVal(point, point.stats.notes, 'notes.note')"></span>
+                </td>
+                <td md-cell>
+                    <span>
+                        <span ng-bind="point.stats.start.rendered || '\u2014'"  
+                            ng-style="point.stats.startsAndRuntimes && {'color': point._textRenderer.values[point.stats.start.value].color}"
+                            ng-click="$ctrl.pieVal(point, point.stats.start, 'common.rollup.start')"></span>
+                        <md-tooltip ng-if="point.stats.start" md-direction="left" ng-bind="formatTimestamp(point.stats.start.timestamp)"></md-tooltip>
+                    </span>
+                </td>
+                <td md-cell ng-if="!nonNumeric">
+                    <span ng-bind="point.stats.average.rendered || '\u2014'"  ng-click="$ctrl.pieVal(point, point.stats.average, 'ui.app.avg')"></span>
+                </td>
+                <td md-cell ng-if="!nonNumeric">
+                    <span>
+                        <span ng-bind="point.stats.maximum.rendered || '\u2014'" ng-click="$ctrl.pieVal(point, point.stats.maximum, 'ui.app.max')"></span>
+                        <md-tooltip ng-if="point.stats.maximum" md-direction="left" ng-bind="formatTimestamp(point.stats.maximum.timestamp)"></md-tooltip>
+                    </span>
+                </td>
+                <td md-cell ng-if="!nonNumeric">
+                    <span>
+                        <span ng-bind="point.stats.minimum.rendered || '\u2014'" ng-click="$ctrl.pieVal(point, point.stats.minimum, 'ui.app.min')"></span>
+                        <md-tooltip ng-if="point.stats.minimum" md-direction="left" ng-bind="formatTimestamp(point.stats.minimum.timestamp)"></md-tooltip>
+                    </span>
+                </td>
+                <td md-cell>
+                    <span>
+                        <span ng-bind="point.stats.first.rendered || '\u2014'"
+                            ng-style="point.stats.startsAndRuntimes && {'color': point._textRenderer.values[point.stats.first.value].color}"
+                            ng-click="$ctrl.pieVal(point, point.stats.first, 'ui.app.first')"></span>
+                        <md-tooltip ng-if="point.stats.first" md-direction="left" ng-bind="formatTimestamp(point.stats.first.timestamp)"></md-tooltip>
+                    </span>
+                </td>
+                <td md-cell>
+                    <span>
+                        <span ng-bind="point.stats.last.rendered || '\u2014'"
+                            ng-style="point.stats.startsAndRuntimes && {'color': point._textRenderer.values[point.stats.last.value].color}"
+                            ng-click="$ctrl.pieVal(point, point.stats.last, 'ui.app.last')"></span>
+                        <md-tooltip ng-if="point.stats.last" md-direction="left" ng-bind="formatTimestamp(point.stats.last.timestamp)"></md-tooltip>
+                    </span>
+                </td>
+                <td md-cell>
+                    <span ng-bind="point.stats.count.rendered" ng-click="$ctrl.pieVal(point, point.stats.count, 'ui.app.count')"></span>
+                </td>
+                <td md-cell>
+                    <md-icon ng-if="point.stats.startsAndRuntimes"
+                        ng-click="$ctrl.pieVal(point, point.stats.startsAndRuntimes, 'common.stats.runtime', point.stats.startsAndRuntimes, true)" 
+                        ng-class="'md-' + (point.stats.runtimeTooltip ? 'primary' : 'accent')">
+                        pie_chart
+                        <md-tooltip md-autohide="true" md-visible="point.stats.runtimeTooltip" md-direction="left" md-delay="500" style="height: auto; width: 450px;">
+                            <md-table-container>
+                                <table md-table>
+                                    <thead md-head>
+                                        <tr md-row>
+                                            <th md-column ma-tr="common.stats.value"></th>
+                                            <th md-column md-numeric ma-tr="ui.app.count"></th>
+                                            <th md-column md-numeric ma-tr="common.stats.runtime"></th>
+                                            <th md-column md-numeric ma-tr="common.stats.proportion"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row ng-repeat="state in point.stats.startsAndRuntimes">
+                                            <td md-cell>
+                                                <span 
+                                                    ng-bind="point.getTextRenderer().values[state.value].text" 
+                                                    ng-style="{'color': point.getTextRenderer().values[state.value].color}"></span>
+                                            </td>
+                                            <td md-cell ng-bind="state.starts"></td>
+                                            <td md-cell ng-bind="state.runtime | maDuration:'humanize'"></td>
+                                            <td md-cell ng-bind="(state.proportion * 100 | number:2) + '%'"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <ma-pie-chart 
+                                    style="height:200px;"
+                                    values="point.stats.startsAndRuntimes" 
+                                    value-labels="point.getTextRenderer().values" 
+                                    options="{depth3D:15,angle:30}">
+                                </ma-pie-chart>
+                            </md-table-container>
+                        </md-tooltip>
+                    </md-icon>
+                    <md-icon 
+                        ng-click="$ctrl.pieVal(point, point.stats.startsAndRuntimes, 'common.stats.runtime', point.stats.startsAndRuntimes, false)" 
+                        ng-class="point.chartTooltip && 'md-primary' || point.stats.startsAndRuntimes && 'md-accent' ">
+                        trending_up
+                        <md-tooltip md-autohide="true" md-visible="point.chartTooltip" md-direction="left" md-delay="500" style="height: auto; width: 450px;">
+                            <span ng-show="false" ng-bind="'|'"></span>
+                            <div ng-if="point.chartTooltip">
+                                <wi-tooltip-chart point="point"></wi-tooltip-chart>
+                            </div>
+                        </md-tooltip>
+                    </md-icon>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-table-container>
+
+<md-table-pagination md-limit="query.limit" md-limit-options="[5, 10, 20]" md-page="query.page" md-total="{{selectedStats.length}}" md-page-select>
+</md-table-pagination>
+
+<div ng-if="pie.values.length" style="margin-bottom: 20px;">
+    <div layout layout-align="center">
+
+        <div ng-if="!(pie.values| filter: greaterThan('value', 0)).length"
+             style="position: absolute; width: 100%; margin-top: 125px;" layout="column" layout-align="start center" layout-wrap >
+            <span ma-tr="ui.components.noItemsToList"></span>
+        </div>
+        <ma-pie-chart flex
+            style="height: 300px; width: 600px"
+            values="pie.chartValues" 
+            options="{
+                depth3D: 15, 
+                angle: 30,
+                export: {
+                    enabled: true,
+                    libs: {autoLoad: false},
+                    dateFormat: $root.mangoDateFormats.iso,
+                    fileName: 'WiseIf Pie Chart'
+                }
+            }">
+        </ma-pie-chart>
+    </div>
+    <md-table-container>
+        <table md-table>
+            <thead md-head md-order="pieOrder">
+                <tr md-row ma-fix-sort-icons>
+                    <th md-column md-order-by="point.name" ma-tr="common.name"></th>
+                    <th md-column md-order-by="point.deviceName" ma-tr="common.deviceName"></th>
+                    <th md-column md-order-by="val.preset" ma-tr="ui.app.dateRangePreset"></th>
+                    <th md-column md-order-by="rollupType" ma-tr="ui.app.rollupType"></th>
+                    <th md-column md-numeric md-order-by="value" ma-tr="ui.app.value"></th>
+                    <th md-column md-numeric>
+                        <span ma-tr="ui.app.axisColor"></span>
+                        <md-icon style="font-size: 24px !important; line-height: 1 !important;" class="wi-no-focus md-warn" ng-click="pie.values=[]">clear</md-icon>
+                    </th>
+                </tr>
+            </thead>
+            <tbody md-body>
+                <tr md-row ng-repeat="val in pie.values | orderBy: pieOrder track by $index">
+                    <td md-cell class="wi-no-focus" ng-click="$root.cellEdit($event, val, 'text')">
+                        <span style="white-space: nowrap;">
+                            <md-icon>edit</md-icon>
+                            <span ng-bind="val.point.name"></span>
+                            <span ng-if="val.key != undefined">
+                                (<span ng-style="{'color': val.point._textRenderer.values[val.key].color}" ng-bind="val.point._textRenderer.values[val.key].text"></span>)
+                            </span>
+                        </span>
+                    </td>
+                    <td md-cell ng-bind="val.point.deviceName"></td>
+                    <td md-cell ng-bind="val.preset"></td>
+                    <td md-cell>
+                        <span ng-bind="val.rollupType"></span>
+                    </td>
+                    <td md-cell>
+                        <span ng-if="!val.time && val.nonNumeric">
+                            <span ng-bind="val.value"></span> (<span ng-style="{'color': val.nonNumeric}" ng-bind="val.rendered"></span>)
+                        </span>
+                        <span ng-if="!val.time && !val.nonNumeric" ng-bind="val.rendered"></span>
+                        <span ng-if="val.time" ng-bind="val.value | maDuration:'humanize'"></span>
+                    </td>
+                    <td md-cell>
+                        <ma-color-picker ng-model="val.color" ng-change="$ctrl.updateColor()"></ma-color-picker>
+                        <md-icon class="wi-no-focus md-warn" ng-click="$ctrl.removeVal(val)">clear</md-icon>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </md-table-container>
+</div>

@@ -1,0 +1,125 @@
+<ma-point-values
+    ng-if="dateBar.rollupType == $ctrl.rollup.type"
+    rendered="true"
+    points="$ctrl.chartPoints"
+    values="$ctrl.values"
+    from="dateBar.from" 
+    to="dateBar.to"
+    on-values-updated="$ctrl.valuesUpdated($values, $ctrl.chartPoints)"
+    simplify-tolerance="dateBar.simplifyTolerance"
+    rollup="{{dateBar.rollupType}}" 
+    rollup-interval="{{dateBar.rollupIntervals + ' ' + dateBar.rollupIntervalPeriod}}">
+</ma-point-values>
+
+<div class="md-padding" layout="column" layout-align="center center">
+    <span>
+        <span 
+            ma-tr="{{ dateBar.preset && ($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translation || 'ui.app.dateRangePreset'}}" 
+            ma-tr-args="($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translationArgs"></span> 
+        (<span ma-tr="{{($root.rollupTypes | filter:{type: dateBar.rollupType} | maFirst:true).translation}}"></span>)
+    </span>
+    <wi-rollup-check points="points" rollup="$ctrl.rollup" chart-points="$ctrl.chartPoints"></wi-rollup-check>
+</div>
+
+<md-table-container class="ma-margin-bottom">
+    <table md-table>
+        <thead md-head>
+            <tr md-row>
+                <th md-column>
+                    <span ng-if="$ctrl.sameDevice" ng-bind="$ctrl.chartPoints[0] && $ctrl.chartPoints[0].deviceName"></span>
+                    <span ma-tr="ui.app.dataPoints"></span>
+                </th>
+                <th md-column md-numeric>
+                    <span ng-if="$ctrl.values" ng-bind="$ctrl.values[0].timestamp | maDate:'shortDateTimeSeconds'"></span>
+                    <span>(</span>
+                        <a class="wi-no-underline" ma-tr="common.stats.start"></a>
+                    <span>)</span>
+                </th>
+                <th md-column md-numeric>
+                    <span ng-if="$ctrl.values" ng-bind="$ctrl.values[$ctrl.values.length-1].timestamp | maDate:'shortDateTimeSeconds'"></span>
+                    <span>(</span>
+                        <a class="wi-no-underline" ma-tr="common.stats.end"></a>
+                    <span>)</span>
+                </th>
+            </tr>
+        </thead> 
+        <tbody md-body>
+            <tr md-row ng-if="($ctrl.chartPoints | filter:{showCol: '!'}).length == 0">
+                <td md-cell ma-tr="ui.components.noItemsToList"></td>
+                <td md-cell></td>
+                <td md-cell></td>
+            </tr>
+            <tr md-row ng-repeat="point in $ctrl.chartPoints | filter:{showCol: '!'}"> 
+                <td md-cell style="white-space: nowrap;">
+                    <md-icon ng-click="$ctrl.togglePoint(point, true)" class="wi-no-focus md-accent">
+                        visibility
+                        <md-tooltip ma-tr="ui.components.showData"></md-tooltip>
+                    </md-icon>
+                    <a class="wi-no-underline md-primary"
+                        ng-bind="$ctrl.sameDevice ? point.name : point.formatLabel()" 
+                        ng-click="$root.popupPoint($event, point, 'table')">
+                </td>
+                <td md-cell>
+                    <span ng-if="point.dataType != 'IMAGE'" 
+                        ng-bind="$ctrl.values[0]['value_'+point.xid+'_rendered']"
+                        ng-style="{'color': point.getRenderedColor($ctrl.values[0]['value_' + point.xid])}"></span>
+                </td>
+                <td md-cell>
+                    <span ng-if="point.dataType != 'IMAGE'" 
+                        ng-bind="$ctrl.values[$ctrl.values.length-1]['value_'+point.xid+'_rendered']"
+                        ng-style="{'color': point.getRenderedColor($ctrl.values[$ctrl.values.length-1]['value_' + point.xid])}"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</md-table-container>
+
+<div ng-if="($ctrl.chartPoints | filter:{showCol: true}).length">
+    <md-table-container ng-init="query.order='-timestamp'">
+        <table md-table>
+            <thead md-head md-order="query.order">
+                <tr md-row ma-sortable="{draggable: '.move-draggable', handle: '.ma-move-handle'}" ma-sortable-items="$ctrl.chartPoints">
+                    <th md-column md-order-by="timestamp" ma-tr="ui.app.time"></th>
+                    <th md-column md-numeric class="move-draggable" ng-repeat="point in $ctrl.chartPoints" ng-show="point.showCol">
+                        <md-icon ng-if="($ctrl.chartPoints | filter:{showCol: true}).length > 1"
+                            style="margin-right: -2px; width: 24px !important; height: 24px !important; font-size: 24px !important; line-height: 1 !important;"
+                            class="md-accent ma-move-handle">reorder</md-icon>
+                        <md-icon ng-click="$ctrl.togglePoint(point, undefined)"
+                            style="margin: -2px 0; width: 24px !important; height: 24px !important; font-size: 24px !important; line-height: 1 !important;"
+                            class="wi-no-focus md-accent">
+                            visibility_off
+                            <md-tooltip ma-tr="ui.components.hideData"></md-tooltip>
+                        </md-icon>
+                        <a class="wi-no-underline md-primary"
+                            ng-bind="$ctrl.sameDevice ? point.name : point.formatLabel()" 
+                            ng-click="$root.popupPoint($event, point, 'table')"></a>
+                    </th>
+                </tr>
+            </thead> 
+            <tbody md-body ng-if="$ctrl.filteredValues">
+                <tr md-row ng-repeat="value in $ctrl.filteredValues | orderBy: query.order | limitTo: query.limit : (query.page -1) * query.limit"> 
+                    <td md-cell style="white-space: nowrap;">
+                        <span ng-bind="value.timestamp | maDate:'shortDateTimeSeconds'"></span>
+                        <span ng-if="$ctrl.filteredValues[0] === value || $ctrl.filteredValues[$ctrl.filteredValues.length-1] === value"> 
+                            <span>(</span>
+                                <a class="wi-no-underline" ma-tr="{{$ctrl.filteredValues[0] === value ? 'common.stats.start' : 'common.stats.end'}}"></a>
+                            <span>)</span>
+                        </span>
+                    </td>
+                    <td md-cell ng-repeat="point in $ctrl.chartPoints" ng-show="point.showCol">
+                         <span ng-if="point.dataType != 'IMAGE'" 
+                            ng-bind="value['value_' + point.xid + '_rendered'] == undefined ? '\u2014' : value['value_' + point.xid + '_rendered']" 
+                            ng-style="{'color': point.getRenderedColor(value['value_' + point.xid])}"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </md-table-container>
+
+    <md-table-pagination md-page-select
+        md-limit="query.limit" 
+        md-limit-options="[5, 10, 20, 50]" 
+        md-page="query.page" 
+        md-total="{{$ctrl.filteredValues.length}}">
+    </md-table-pagination>
+</div>

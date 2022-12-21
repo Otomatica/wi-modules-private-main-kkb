@@ -1,0 +1,12 @@
+/*remove delete all on */
+ul.leaflet-draw-actions.leaflet-draw-actions-bottom > li:nth-child(3) {
+	display: none;
+}
+
+.wi-attribution {
+	font-size: 13px;
+}
+
+.wi-point-marker {
+	border: 0;
+}

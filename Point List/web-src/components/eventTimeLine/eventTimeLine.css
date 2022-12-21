@@ -1,0 +1,47 @@
+wi-event-time-line .b-gridbase, .b-float-root {
+    font-size: 14px;
+}
+
+wi-event-time-line .b-gridbase {
+    background-color: transparent;
+}
+
+.wi-red-highlight {
+    animation: wi-red-highlight-animation 1.5s ease 0s 1; 
+}
+
+@keyframes wi-red-highlight-animation {
+    0% { box-shadow: none; }
+    50% { box-shadow: 0 0 10px 5px red; }
+    100% { box-shadow: none; } 
+}
+
+.wi-orange-highlight {
+    animation: wi-orange-highlight-animation 1.5s ease 0s 1; 
+}
+
+@keyframes wi-orange-highlight-animation {
+    0% { box-shadow: none; }
+    50% { box-shadow: 0 0 10px 5px orange; }
+    100% { box-shadow: none; } 
+}
+
+.wi-green-highlight {
+    animation: wi-green-highlight-animation 1.5s ease 0s 1; 
+}
+
+@keyframes wi-green-highlight-animation {
+    0% { box-shadow: none; }
+    50% { box-shadow: 0 0 10px 5px green; }
+    100% { box-shadow: none; } 
+}
+
+.wi-yellow-highlight {
+    animation: wi-yellow-highlight-animation 1.5s ease 0s 1; 
+}
+
+@keyframes wi-yellow-highlight-animation {
+    0% { box-shadow: none; }
+    50% { box-shadow: 0 0 10px 5px yellow; }
+    100% { box-shadow: none; } 
+}

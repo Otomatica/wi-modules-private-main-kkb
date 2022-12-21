@@ -1,0 +1,44 @@
+<div class="md-padding" layout layout-align="space-around center" ng-if="nonNumericPoints.length">
+    <span>
+        <span 
+            ma-tr="{{ dateBar.preset && ($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translation || 'ui.app.dateRangePreset'}}" 
+            ma-tr-args="($root.dateRangePresets | filter:{type:dateBar.preset} | maFirst).translationArgs"></span> 
+        (<span ma-tr="{{($root.rollupTypes | filter:{type: dateBar.rollupType} | maFirst:true).translation}}"></span>)
+    </span>
+</div>
+
+<div class="md-padding">
+    <wi-rollup-check points="nonNumericPoints" rollup="rollup" chart-points="chartPoints"></wi-rollup-check>
+    <div layout="column" ng-repeat="point in chartPoints">
+        <md-checkbox ng-model="point.showChart">
+            <span ng-bind="point.deviceName + ' - ' + point.name"></span>
+            <span ng-if="point.showChart && point.notAllowed">
+                <a class="md-warn wi-no-underline" ma-tr="wiseifUI.maximumValues" ma-tr-args="[500]"></a> 
+                <span ma-tr="wiseifUI.reduceRollup"></span>
+            </span>
+        </md-checkbox>
+
+        <ma-state-chart
+            ng-if="point.showChart && !point.notAllowed"
+            style="height: 100px; margin-top: -20px;"
+            series-1-title=" "
+            series-1-labels="point.chartRenderColors"
+            series-1-values="point.values">
+        </ma-state-chart>
+
+        <ma-point-values
+            ng-if="point.showChart && dateBar.rollupType == rollup.type"
+            rendered="true"
+            point="point" 
+            values="point.values"
+            from="dateBar.from"
+            to="dateBar.to" 
+            rollup="{{dateBar.rollupType}}" 
+            rollup-interval="{{dateBar.rollupIntervals + ' ' + dateBar.rollupIntervalPeriod}}"
+            on-values-updated="point.notAllowed = $values.length > 500">
+        </ma-point-values>
+    </div>
+    <md-card-content ng-if="!nonNumericPoints.length">
+        <span ma-tr="ui.components.noItemsToList"></span>
+    </md-card-content>
+</div>

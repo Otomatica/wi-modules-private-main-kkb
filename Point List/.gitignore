@@ -1,0 +1,12 @@
+/target
+/bin
+*~
+/maven-target
+/node_modules/
+/node/
+.vscode
+/web/angular/
+/config.json
+.settings
+.classpath
+.project

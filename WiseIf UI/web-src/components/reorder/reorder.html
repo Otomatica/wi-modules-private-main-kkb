@@ -1,0 +1,22 @@
+<div layout ng-if="$ctrl.showSwitch">
+	<md-switch class="wi-switch-label" 
+		ng-model="$ctrl.showReorder" 
+		ma-tr="ui.app.sort" ma-tr-args="['']">
+	</md-switch>
+
+	<div flex layout layout-align="space-around center" 
+		ng-if="$ctrl.showReorder" 
+		ma-sortable="{draggable: '.move-draggable', handle: '.ma-move-handle'}" 
+		ma-sortable-items="$ctrl.model"
+		ma-sortable-stop="$ctrl.sortableStop()">
+	 	<div layout="column" layout-align="center center" class="move-draggable"
+	 		ng-repeat="column in $ctrl.model"
+	 		ng-show="!$ctrl.discard.includes($ctrl.prop ? column[$ctrl.prop] : column)">
+			<span ng-bind="$ctrl.prop ? column[$ctrl.prop] : column"></span>
+			<div layout layout-align="center center">
+				<md-icon class="md-accent ma-move-handle">reorder</md-icon>
+				<md-icon class="md-warn" ng-click="$ctrl.remove($index);">clear</md-icon>
+			</div>
+	 	</div>
+	</div>
+</div>

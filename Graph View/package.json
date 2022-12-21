@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "name": "@infinite-automation/graphView",
+  "version": "4.3.5",
+  "description": "Graph View designer for overview",
+  "main": "web/graphView.js",
+  "devDependencies": {
+    "@infinite-automation/mango-module-tools": "^2.1.0"
+  },
+  "scripts": {
+    "webpack": "webpack --config webpack.config.js",
+    "webpack-dev": "webpack --config webpack.config.js --mode development --watch"
+  },
+  "author": "Mert Cingöz",
+  "license": "UNLICENSED",
+  "com_infiniteautomation": {
+    "moduleName": "graphView"
+  }
+}

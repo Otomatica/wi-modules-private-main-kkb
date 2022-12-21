@@ -1,0 +1,24 @@
+
+<md-toolbar class="md-hue-2">
+    <div class="md-toolbar-tools">
+        <md-input-container md-no-float="true" flex>
+            <md-select flex ma-form-exclude ng-model="$ctrl.selectedList" ng-model-options="{trackBy: '$value.name'}" ng-change="$ctrl.getDevices()" ma-tr="pointList.settings.select">
+                <md-option ng-repeat="pointList in $ctrl.pointLists" ng-value="pointList" ng-selected="$index==0">
+                    <span ng-bind="pointList.name"></span>
+                </md-option>
+            </md-select>
+        </md-input-container>
+    </div>
+</md-toolbar>
+
+<md-card-content layout="column" flex>
+    <div layout class="wi-tag-hierarchy-container">
+        <ma-tag-hierarchy flex="none"
+            tags="$ctrl.selectedList.context.tags"
+            ng-multiple="true"
+            ng-model="$ctrl.selectedList.context.defaultTagValues"
+            ng-change="$ctrl.getDevices()">
+        </ma-tag-hierarchy>
+    </div>
+</md-card-content>
+    
